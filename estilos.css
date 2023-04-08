@@ -1,0 +1,554 @@
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+
+h2 {
+  font-size: 1.5rem;
+}
+
+h2.tituloSeccion {
+  font-size: 1.25rem;
+  opacity: 0.7;
+}
+
+h6 {
+  font-family: "Segoe UI", sans-serif;
+  font-size: 0.3rem;
+}
+
+#cantidadProductos {
+  font-size: 0.8rem;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+    padding: 1rem;
+}
+
+.form, .facturacion {
+    border: 1px solid #ccc;
+    border-radius: 7px;
+    padding: 2rem;
+    width: 90%;
+	font-size: 0.8rem;
+	 background-color: #fafafa;
+	
+}
+
+.productos{
+	
+	  border: 1px solid #ccc;
+    border-radius: 7px;
+    padding: 2rem;
+    width: 100%;
+	font-size: 0.9rem;
+	
+	
+}
+
+header nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+#listaProductos li {
+  list-style: none;
+    margin-bottom: 0;
+    border: none;
+  
+}
+#listaProductos li:last-child {
+  border-bottom: none;
+}
+
+
+
+
+.producto {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  padding: 5px;
+   font-size: 1.6em;
+  margin-bottom: 5px;
+}
+
+#detalleFacturacion li {
+    font-size: 0.8rem;
+}
+
+
+
+.producto .nombreProducto {
+  font-size: 2.6rem;
+  font-family: Segoe UI, sans-serif;
+  white-space: nowrap;
+}
+
+.producto input.cantidad {
+  margin-left: 5px;
+}
+
+.nombreProducto {
+  font-size: 1.2rem;
+  font-family: Segoe UI, sans-serif;
+  white-space: nowrap;
+}
+
+
+.productos ul li {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+	 height: 100%;
+}
+
+html, body {
+  height: 100%;
+}
+
+
+button {
+    cursor: pointer;
+}
+
+
+
+
+.navbar {
+  margin-bottom: 1rem;
+}
+
+.tituloSeccion {
+  margin-bottom: 1rem;
+  opacity: 0.45;
+    font-size: 1.2rem;
+  font-weight: lighter;
+}
+
+.form-container {
+  max-width: 20%;
+}
+
+.productos-container {
+  margin-left: 1rem;
+}
+
+.facturacion {
+  max-width: 100%;
+}
+
+.notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  width: auto;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  color: white;
+  background-color: #4caf50;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 30%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal input {
+  width: 100%;
+}
+
+.buscar {
+  border-radius: 7px;
+  border: none;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  width: 75%;
+  font-size: 0.9rem;
+  margin-bottom: 3rem;
+  margin-top: 1rem;
+}
+
+
+
+.producto {
+  width: 100%;
+}
+
+.list-group-item.par {
+  background-color: #f3f3f3;
+ 
+}
+
+.list-group-item.impar {
+  background-color: #f7f7f7;
+ 
+}
+
+/* Estilos para el contenedor de productos */
+#listaProductos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.producto-card {
+  position: relative;
+  padding: 16px;
+  background-color: #fff;
+  border-radius: 7px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.editarProducto {
+  position: absolute;
+  top: 8px;
+   border: none;
+  right: 8px;
+  border: 0;
+  outline: none;
+  box-shadow: none;
+}
+
+.precio {
+  font-size: 1.1em;
+  margin-right: 1rem; /* Agrega margen a la derecha del precio */
+
+}
+
+
+/* Crea una separación entre el precio y el texto "Cantidad" */
+.nombrePrecio {
+	 font-size: 1.1em;
+  display: flex;
+   margin-top: 2rem;
+  justify-content: space-between;
+  margin-bottom: 16px; /* Ajusta este valor según la cantidad de separación deseada */
+}
+
+
+
+/* Estilos para las tarjetas de productos alternativos */
+.producto-grid-item:nth-child(even) .producto-card {
+  background-color: #f2f2f2;
+}
+
+
+
+.boton-icono i {
+  display: block;
+ 
+  margin-bottom: 0.1rem;
+   padding: 8px 15px;
+
+   
+}
+
+.boton-icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  padding: 2rem;
+  width: 120px;
+  height: 80px;
+}
+
+.boton-icono svg {
+  font-size: 30px;
+  margin-bottom: 5px;
+}
+
+#contenedor-botones {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  justify-content: center;
+}
+
+#contenedor-botones .fila-botones {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+#contenedor-botones .fila-botones .boton-icono {
+  margin-right: 4px;
+  margin-left: 4px;
+}
+
+#contenedor-botones .fila-botones:first-of-type .boton-icono {
+  margin-bottom: 12px;
+}
+
+#contenedor-botones .fila-botones:last-of-type .boton-icono {
+  margin-top: 12px;
+}
+
+footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #f1f1f1;
+    font-size: 8px;
+    font-family: Segoe UI, sans-serif;
+    text-align: center;
+    padding: 5px 0;
+}
+
+#currentYear {
+    font-weight: bold;
+}
+
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #1c1c1c;
+  color: white;
+  height: 128px;
+}
+
+.logo {
+  margin-right: 16px;
+}
+
+.title {
+  font-size: 24px;
+}
+
+.title h1 {
+  margin: 0;
+  font-weight: normal;
+}
+
+.button-container {
+	margin-left: 8rem;
+    display: flex;
+    width: 100%;
+	align-items: center;
+    padding: 20px;
+	  justify-content: center;
+    margin-top: 3rem; 
+}
+
+.custom-button {
+    width: 45%;
+	max-width: 23rem;
+    text-overflow: ellipsis; 
+    box-sizing: border-box;
+    height: 4rem;
+}
+
+.ventana-button {
+    width: 22%;
+	max-width: 16rem;
+    text-overflow: ellipsis; 
+    box-sizing: border-box;
+    height: 4rem;
+}
+
+.btn-primary {
+    margin-right: 20px;
+}
+
+
+
+
+
+
+#options-btn {
+  background-color: #ffc107;
+  color: #333;
+  border: 1px solid #ffc107;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+#options-btn:hover {
+  background-color: #333;
+  color: #fff;
+}
+
+
+#modal-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: none;
+  z-index: 1;
+}
+
+
+@media (min-width: 1080px) {
+  .d-flex.mt-3 {
+    gap: 1rem;
+	padding: 9rem;
+	padding-left: 3rem;
+	padding-right: 3rem;
+	width: 60%;
+	max-width: 60%;
+	height: 27%;
+	padding-bottom: 2.4rem;
+	padding-top: 2.4rem;
+	max-height: 27%;
+
+	
+	
+  }
+}
+
+
+
+#modal-content {
+  background-color: #f5f5f5;
+  padding: 1rem;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  width: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+  border-radius: 5px;
+  position: relative;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#modal-content div {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 100%:
+  
+}
+
+#modal-content label {
+  margin-right: 1rem;
+}
+
+
+#modal-content input[type="text"] {
+    width: 100%;
+  max-width: 100%;
+}
+
+
+
+.contenidoFormulario {
+  width: 40%;
+}
+
+
+#productosAFacturar {
+  opacity: 0.4;
+  font-size: 1.6rem;
+  font-weight: lighter;
+}
+
+header {
+
+  top: 0;
+  z-index: 999;
+}
+
+
+.titulo {
+  font-size: 2rem;
+  color: black;
+}
+
+
+
+.logo {
+  height: 40px;
+  margin-right: 10px;
+}
+
+h1 {
+    font-weight: 400;
+}
+
+.container-fluid {
+  background-color: #303030;
+}
+#version {
+  font-size: 0.7rem;
+  color: #efefef;
+  font-weight: 400;
+}
+
+.text-secondary {
+  font-size: 0.8rem;
+  top: -1.4rem
+}
+
+.facturacion-bg {
+  background-color: #efefef;
+}
+
+.sound-config-container {
+  display: flex;
+  align-items: center;
+  
+}
+
+.sound-config-container label {
+  margin-right: 2.5rem;
+}
+
+.sound-config-container input[type="range"] {
+  margin: 1rem;
+}
+
+.no-scroll {
+  overflow: hidden;
+}
