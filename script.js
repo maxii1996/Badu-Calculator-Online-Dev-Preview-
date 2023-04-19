@@ -1,102 +1,97 @@
 document.getElementById('agregarProducto').addEventListener('click', agregarProducto);
 document.getElementById('facturar').addEventListener('click', facturar);
+document.getElementById("searchInput").addEventListener("input", filterTable);
+document.getElementById("minPriceInput").addEventListener("input", filterTable);
+document.getElementById("maxPriceInput").addEventListener("input", filterTable);
+document.getElementById("cancelDeleteButton").addEventListener("click", () => {
+  $("#deleteConfirmationModal").modal("hide");
+});
+
+document.getElementById("deleteSalesButton").addEventListener("click", () => {
+  $("#deleteConfirmationModal").modal("show");
+});
+
+document.getElementById("confirmDeleteButton").addEventListener("click", () => {
+  deleteSales();
+  $("#deleteConfirmationModal").modal("hide");
+});
+
 document.addEventListener("DOMContentLoaded", () => {
+	
+  cargarEstadoAutoguardado();
+  console.log('DOMContentLoaded');
   cargarProductos();
   loadSavedTexts();
   loadSalesFromLocalStorage();
   mostrarOcultarBotonFacturar();
+  const productos = document.querySelector('.productos');
+  productos.style.backgroundColor = '#fff';
 
- 
   const exportarDatosBtn = document.querySelector("#historialVentasModal .btn-primary");
   exportarDatosBtn.addEventListener("click", exportarDatos);
 
   document.querySelector("#historialVentasModal .btn-close").addEventListener("click", closeModal);
   document.querySelector("#historialVentasModal .btn-secondary").addEventListener("click", closeModal);
 
-
   const facturarRapidaModal = $("#facturarapida1");
-
-  const closeButton = $("#facturarapida1 .btn-close");
-  const aplicarButton = $("#facturarapida1 .btn-primary");
-  const cerrarButton = $("#facturarapida1 .btn-secondary");
-  
-   const cargarFacturacionRapidaBtn = document.getElementById("cargarFacturacionRapida");
+  const cargarFacturacionRapidaBtn = document.getElementById("cargarFacturacionRapida");
   cargarFacturacionRapidaBtn.addEventListener("click", cargarValoresFacturacionRapida);
-  
+   
+    $("#listaProductos").sortable({
+    placeholder: "placeholder",
+    forcePlaceholderSize: true,
+    stop: () => {
+      guardarOrdenTarjetas();
+	  guardarProductos();
+    }
+  });
+	
+	
 
-  closeButton.on("click", () => {
-    facturarRapidaModal.modal("hide");
+  const abrirAdministrarCategorias = document.getElementById('abrirAdministrarCategorias');
+  const administrarCategoriasModalElement = document.getElementById('administrarCategoriasModal');
+  const administrarCategoriasModal = new bootstrap.Modal(administrarCategoriasModalElement);
+
+  abrirAdministrarCategorias.addEventListener('click', function () {
+    const categoriasContainer = document.getElementById('categoriasContainer');
+    categoriasContainer.innerHTML = '';
+    cargarCategorias();
+    administrarCategoriasModal.show();
   });
 
-  aplicarButton.on("click", () => {
-    facturarRapido();
-    guardarConfiguracionFacturacionRapida();
-    facturarRapidaModal.modal("hide");
-  });
+// Reemplaza el evento 'click' del botón agregarCategoria
+document.getElementById('agregarCategoria').removeEventListener('click', agregarCategoria);
+document.getElementById('agregarCategoria').addEventListener('click', agregarCategoriaBtnHandler);
+  document.getElementById('guardarCategorias').addEventListener('click', guardarCategorias);
+  document.getElementById('cancelarAdministrarCategorias').addEventListener('click', cerrarAdministrarCategorias);
+  document.getElementById('cerrarAdministrarCategorias').addEventListener('click', cerrarAdministrarCategorias);
 
-  cerrarButton.on("click", () => {
-    facturarRapidaModal.modal("hide");
-  });
-  
-  
-    cargarConfiguracionFacturacionRapida();
+  document.getElementById('buscarProducto').addEventListener('input', filtrarProductos);
+  document.getElementById('siguienteCliente').addEventListener('click', siguienteCliente);
+  document.getElementById('save-btn').addEventListener('click', saveOptions);
+  document.getElementById('reset-final-text-btn').addEventListener('click', resetFinalText);
+  document.getElementById('reset-quick-text-1-btn').addEventListener('click', resetQuickText1);
+  document.getElementById('reset-quick-text-2-btn').addEventListener('click', resetQuickText2);
+  document.getElementById('reset-quick-text-3-btn').addEventListener('click', resetQuickText3);
 
+
+
+	
 });
 
-document.getElementById('buscarProducto').addEventListener('input', filtrarProductos);
-document.getElementById('siguienteCliente').addEventListener('click', siguienteCliente);
-document.getElementById('save-btn').addEventListener('click', saveOptions);
-document.getElementById('reset-final-text-btn').addEventListener('click', resetFinalText);
-document.getElementById('reset-quick-text-1-btn').addEventListener('click', resetQuickText1);
-document.getElementById('reset-quick-text-2-btn').addEventListener('click', resetQuickText2);
-document.getElementById('reset-quick-text-3-btn').addEventListener('click', resetQuickText3);
 
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
-      console.log('Service Worker registered with scope:', registration.scope);
-    }, function(error) {
-      console.log('Service Worker registration failed:', error);
-    });
-  });
-}
+
 
 let productoId = 0;
 
 function agregarProducto() {
-    const nombreProducto = document.getElementById('nombreProducto').value.trim();
-    const precio = document.getElementById('precio').value;
+    if (agregarProductoSinNotificacion()) { 
+        mostrarNotificacion('Producto agregado correctamente', 'success', '');
 
-    if (esProductoDuplicado(nombreProducto)) {
-        alert('No se pueden agregar productos con el mismo nombre.');
-        return;
+        if (autoguardarProductos.checked) {
+            guardarProductos();
+        }
     }
-
-    if (nombreProducto.length < 2) {
-        alert('El nombre del producto debe tener al menos 2 caracteres.');
-        return;
-    }
-  
-    if (precio == 0 || precio <= 0) {
-        alert('No se pueden agregar productos con precio 0 o menor.');
-        return;
-    }
-
-    const listaProductos = document.getElementById('listaProductos');
-    const nuevoProducto = document.createElement('div');
-    nuevoProducto.innerHTML = document.getElementById('productoTemplate').innerHTML.replace(/{id}/g, productoId).replace('{nombreProducto}', nombreProducto).replace('{precio}', precio);
-    nuevoProducto.querySelector('.editarProducto').addEventListener('click', editarProducto);
-    
-   const listItem = nuevoProducto.querySelector(".inner-product");
-    if (listItem) {
-      listItem.className += productoId % 2 === 0 ? ' par' : ' impar';
-    }
-    listaProductos.appendChild(nuevoProducto);
-    productoId++;
-    mostrarOcultarBotonFacturar();
-  
-    document.getElementById('nombreProducto').value = '';
-    document.getElementById('precio').value = '';
 }
 
 function esProductoDuplicado(nombreProducto) {
@@ -107,72 +102,124 @@ function esProductoDuplicado(nombreProducto) {
 
 
 function mostrarNotificacion(mensaje, tipo, icono) {
-    const notificacion = document.createElement('div');
-    notificacion.classList.add('alert', `alert-${tipo}`, 'text-center', 'position-absolute', 'top-0', 'end-0', 'm-3', 'd-flex', 'align-items-center', 'justify-content-center');
-    notificacion.innerHTML = `<i class="fas ${icono} me-2"></i>${mensaje}`;
-    
-    const notificacionContenedor = document.getElementById('notificacionContenedor');
-    notificacionContenedor.appendChild(notificacion);
+  const notificacion = document.createElement('div');
+  notificacion.classList.add('alert', `alert-${tipo}`, 'text-center', 'd-flex', 'align-items-center', 'justify-content-center');
+  notificacion.innerHTML = `<i class="fas ${icono} me-2"></i>${mensaje}`;
 
+  const notificacionContenedor = document.getElementById('notificacionContenedor');
+  notificacionContenedor.appendChild(notificacion);
+
+  setTimeout(() => {
+    notificacion.classList.add('fadeOut');
     setTimeout(() => {
-        notificacion.remove();
-    }, 3000);
+      notificacion.remove();
+    }, 1000);
+  }, 3000);
+  
+  notificacion.classList.add('alert-custom');
 }
+
+
 
 function editarProducto(event) {
-    const card = event.target.closest('.producto-card');
-    const nombreProducto = card.querySelector('.nombreProducto');
-    const precio = card.querySelector('.precio');
-    const producto = card.closest('.producto-card');
+  const card = event.target.closest('.producto-card');
+  const nombreProducto = card.querySelector('.nombreProducto');
+  const precio = card.querySelector('.precio');
+  const producto = card.closest('.producto-card');
 
-    const editarProductoModal = new bootstrap.Modal(document.getElementById('editarProductoModal'));
-    const confirmarEditarProducto = document.getElementById('confirmarEditarProducto');
-    const cancelarEditarProducto = document.getElementById('cancelarEditarProducto');
-    const eliminarProductoModal = document.getElementById('eliminarProductoModal');
-    const cerrarEditarProducto = document.getElementById('cerrarEditarProducto');
-    const nuevoNombreInput = document.getElementById('nuevoNombreProducto');
-    const nuevoPrecioInput = document.getElementById('nuevoPrecioProducto');
+  const editarProductoModal = new bootstrap.Modal(document.getElementById('editarProductoModal'));
+  const confirmarEditarProducto = document.getElementById('confirmarEditarProducto');
+  const cancelarEditarProducto = document.getElementById('cancelarEditarProducto');
+  const eliminarProductoModal = document.getElementById('eliminarProductoModal');
+  const cerrarEditarProducto = document.getElementById('cerrarEditarProducto');
+  const nuevoNombreInput = document.getElementById('nuevoNombreProducto');
+  const nuevoPrecioInput = document.getElementById('nuevoPrecioProducto');
+  
+  nuevoNombreInput.value = nombreProducto.textContent;
+  nuevoPrecioInput.value = parseFloat(precio.textContent.substring(1));
+  cargarCategoriasSelect();
+  actualizarCategoriaSelect(producto);
+  editarProductoModal.show();
 
-    nuevoNombreInput.value = nombreProducto.textContent;
-    nuevoPrecioInput.value = parseFloat(precio.textContent.substring(1));
-    editarProductoModal.show();
+  confirmarEditarProducto.onclick = () => {
+    const nuevoNombreProducto = nuevoNombreInput.value.trim();
+    const nuevoPrecio = parseFloat(nuevoPrecioInput.value);
+    const nuevaCategoriaProducto = document.getElementById('categoriaProducto').value;
+    if (nuevaCategoriaProducto) {
+      const categoriaNombre = producto.querySelector('.categoriaNombre');
+      categoriaNombre.textContent = nuevaCategoriaProducto;
 
-    confirmarEditarProducto.onclick = () => {
-        const nuevoNombreProducto = nuevoNombreInput.value;
-        const nuevoPrecio = parseFloat(nuevoPrecioInput.value);
+      const nuevoColorCategoria = obtenerColorCategoria(nuevaCategoriaProducto);
+      categoriaNombre.style.backgroundColor = nuevoColorCategoria;
+      categoriaNombre.style.color = 'white'; // Establecer el color del texto de la categoría en blanco
+      producto.querySelector('.categoriaProducto').textContent = nuevaCategoriaProducto;
+    }
 
-        if (nuevoNombreProducto && nuevoNombreProducto !== nombreProducto.textContent && !esProductoDuplicado(nuevoNombreProducto)) {
-            nombreProducto.textContent = nuevoNombreProducto;
-        } else if (nuevoNombreProducto && nuevoNombreProducto !== nombreProducto.textContent) {
-            alert('No se pueden agregar productos con el mismo nombre.');
-        }
+    if (nuevoNombreProducto.length < 2) {
+      alert('El nombre del producto debe tener al menos 2 caracteres.');
+      return;
+    }
 
-        if (nuevoPrecio) {
-            precio.textContent = `$${nuevoPrecio.toFixed(2)}`;
-        }
+    if (nuevoPrecio == 0 || nuevoPrecio <= 0) {
+      alert('No se pueden agregar productos con precio 0 o menor.');
+      return;
+    }
 
-        editarProductoModal.hide();
-    };
+    if (nuevoNombreProducto && nuevoNombreProducto !== nombreProducto.textContent && !esProductoDuplicado(nuevoNombreProducto)) {
+      nombreProducto.textContent = nuevoNombreProducto;
+    } else if (nuevoNombreProducto && nuevoNombreProducto !== nombreProducto.textContent) {
+      alert('No se pueden agregar productos con el mismo nombre.');
+    }
 
-    cancelarEditarProducto.onclick = () => {
-        editarProductoModal.hide();
-    };
+    if (nuevoPrecio) {
+      precio.textContent = `$${nuevoPrecio.toFixed(2)}`;
+    }
 
-    cerrarEditarProducto.onclick = () => {
-        editarProductoModal.hide();
-    };
+    if (nuevaCategoriaProducto) {
+      producto.querySelector('.categoriaProducto').textContent = nuevaCategoriaProducto;
+    }
+    guardarProductos();
+    editarProductoModal.hide();
+  };
 
-    eliminarProductoModal.onclick = () => {
-        if (confirm('¿Estás seguro de que deseas eliminar este producto? Se guardarán los cambios automaticamente.')) {
-           producto.remove();
-            mostrarNotificacion('Producto eliminado correctamente', 'success');
-            mostrarOcultarBotonFacturar();
-            editarProductoModal.hide();
-					guardarProductos();
-		  cargarProductos();
-        }
-    };
+  cancelarEditarProducto.onclick = () => {
+    editarProductoModal.hide();
+  };
+
+  cerrarEditarProducto.onclick = () => {
+    editarProductoModal.hide();
+  };
+
+  eliminarProductoModal.onclick = () => {
+     eliminarProducto(producto, editarProductoModal);
+  };
 }
+
+
+
+
+function eliminarProducto(producto, editarProductoModal) {
+  const confirmDeleteSingleModal = $("#confirmDeleteSingleModal");
+  const confirmDeleteSingleBtn = document.getElementById("confirmDeleteSingle");
+
+  confirmDeleteSingleModal.modal("show");
+
+  confirmDeleteSingleBtn.addEventListener("click", () => {
+  producto.remove();
+  mostrarNotificacion('Producto eliminado correctamente', 'success');
+  mostrarOcultarBotonFacturar();
+  cerrarEditarProductoModal();
+  guardarProductos();
+  cargarProductos();
+  confirmDeleteSingleModal.modal("hide");
+    cerrarEditarProducto.click(); // Cierra el modal de "Editar Producto"
+
+
+});
+
+}
+
+
 
 
 function actualizarPrecio(precioElement, nuevoPrecio) {
@@ -197,7 +244,7 @@ function facturar() {
             total += subtotal;
             cantidadProductos += cantidad;
             const detalle = document.createElement('li');
-            detalle.innerHTML = `${nombreProducto} ($${precio}) x${cantidad} unidades = $${subtotal.toFixed(2)}`;
+            detalle.innerHTML = `${nombreProducto} ($${precio}) x${cantidad} unid. = $${subtotal.toFixed(2)}`;
             detalleFacturacion.appendChild(detalle);
         }
     });
@@ -224,83 +271,163 @@ document.getElementById('importarProductos').addEventListener('click', () => doc
 document.getElementById('archivoImportar').addEventListener('change', importarProductos);
 
 function guardarProductos() {
-    const listaProductos = document.getElementById('listaProductos');
-    const productos = Array.from(listaProductos.children).map(li => {
-        const nombreProducto = li.querySelector('.nombreProducto');
-        const precio = li.querySelector('.precio');
+  const listaProductos = document.getElementById('listaProductos');
+  const productos = Array.from(listaProductos.children).map(li => {
+    const nombreProducto = li.querySelector('.nombreProducto');
+    const precio = li.querySelector('.precio');
+    const categoriaProducto = li.querySelector('.categoriaProducto');
 
-        if (nombreProducto && precio) {
-            return {
-                nombreProducto: nombreProducto.textContent,
-                precio: parseFloat(precio.textContent.substring(1))
-            };
-        }
-    }).filter(producto => producto);
+    if (nombreProducto && precio && categoriaProducto) {
+      return {
+        nombreProducto: nombreProducto.textContent,
+        precio: parseFloat(precio.textContent.substring(1)),
+        categoria: categoriaProducto.textContent, // Incluir la categoría al guardar los productos
+      };
+    }
+  }).filter(producto => producto);
 
-    const productosJson = JSON.stringify(productos);
-    localStorage.setItem('productos', productosJson);
-   showNotification('Los cambios se han guardado y aplicado correctamente', 3000, 'success', 'fa fa-check');
-
+  const productosJson = JSON.stringify(productos);
+  localStorage.setItem('productos', productosJson);
+  showNotification('Los cambios se han guardado y aplicado correctamente', 3000, 'success', 'fa fa-check');
 }
+
 
 
 function cargarProductos() {
-    const productosJson = localStorage.getItem('productos');
-    if (!productosJson) {
-        return;
-    }
+  const productosJson = localStorage.getItem('productos');
+  if (!productosJson) {
+    return;
+  }
 
-    const productos = JSON.parse(productosJson);
-    const listaProductos = document.getElementById('listaProductos');
-    listaProductos.innerHTML = '';
+  const productos = JSON.parse(productosJson);
 
-    productos.forEach(producto => {
-        document.getElementById('nombreProducto').value = producto.nombreProducto;
-        document.getElementById('precio').value = producto.precio;
-        agregarProducto();
+  const tarjetasOrdenJson = localStorage.getItem('tarjetasOrden');
+  let tarjetasOrden = [];
+  if (tarjetasOrdenJson) {
+    tarjetasOrden = JSON.parse(tarjetasOrdenJson);
+  }
+
+  if (tarjetasOrden.length > 0) {
+    productos.sort((a, b) => {
+      const indexA = tarjetasOrden.indexOf(a.nombreProducto);
+      const indexB = tarjetasOrden.indexOf(b.nombreProducto);
+      return indexA - indexB;
     });
+  }
 
-    showNotification('Productos cargados correctamente.');
+  const listaProductos = document.getElementById('listaProductos');
+  listaProductos.innerHTML = '';
+
+  productos.forEach(producto => {
+    document.getElementById('nombreProducto').value = producto.nombreProducto;
+    document.getElementById('precio').value = producto.precio;
+    document.getElementById('categoriaProducto').value = producto.categoria;
+    agregarProductoSinNotificacion(producto.categoria); // Pasa la categoría como argumento
+  });
+
+  cargarOrdenTarjetas();
 }
+
+
+
+
+function agregarProductoSinNotificacion(categoria) { // Agrega el argumento 'categoria'
+  const nombreProducto = document.getElementById('nombreProducto').value.trim();
+  const precio = document.getElementById('precio').value;
+  const categoriaColor = obtenerColorCategoria(categoria); // Obtén el color de la categoría
+
+
+  if (esProductoDuplicado(nombreProducto)) {
+    alert('No se pueden agregar productos con el mismo nombre.');
+    return;
+  }
+
+  if (nombreProducto.length < 2) {
+    alert('El nombre del producto debe tener al menos 2 caracteres.');
+    return;
+  }
+
+  if (precio == 0 || precio <= 0) {
+    alert('No se pueden agregar productos con precio 0 o menor.');
+    return;
+  }
+
+  const listaProductos = document.getElementById('listaProductos');
+  const nuevoProducto = document.createElement('div');
+    nuevoProducto.innerHTML = document
+    .getElementById('productoTemplate')
+    .innerHTML.replace(/{id}/g, productoId)
+    .replace('{nombreProducto}', nombreProducto)
+    .replace('{precio}', precio)
+    .replace('{categoria}', categoria || '')
+    .replace('{categoriaNombre}', categoria || '') // Agrega el nombre de la categoría
+    .replace('{categoriaColor}', categoriaColor); // Agrega el color de la categoría
+
+
+  nuevoProducto.querySelector('.editarProducto').addEventListener('click', editarProducto);
+
+  const listItem = nuevoProducto.querySelector(".producto-grid-item");
+  if (listItem) {
+    listItem.className += productoId % 2 === 0 ? ' par' : ' impar';
+  }
+  listaProductos.appendChild(nuevoProducto);
+  productoId++;
+  mostrarOcultarBotonFacturar();
+
+  document.getElementById('nombreProducto').value = '';
+  document.getElementById('precio').value = '';
+
+  return true;
+}
+
+function obtenerColorCategoria(categoria) {
+  const categorias = JSON.parse(localStorage.getItem('categorias')) || [];
+  const categoriaEncontrada = categorias.find(cat => cat.nombre === categoria);
+  return categoriaEncontrada ? categoriaEncontrada.color : '#000000'; // Retorna el color de la categoría si la encuentra, de lo contrario retorna negro
+}
+
 
 
 function exportarProductos() {
-    const listaProductos = document.getElementById('listaProductos');
-    const productos = Array.from(listaProductos.children).map(li => {
-        const nombreProducto = li.querySelector('.nombreProducto').textContent;
-        const precio = parseFloat(li.querySelector('.precio').textContent.substring(1));
-        return { nombreProducto, precio };
-    });
+  const listaProductos = document.getElementById('listaProductos');
+  const productos = Array.from(listaProductos.children).map(li => {
+    const nombreProducto = li.querySelector('.nombreProducto').textContent;
+    const precio = parseFloat(li.querySelector('.precio').textContent.substring(1));
+    const categoriaProducto = li.querySelector('.categoriaProducto').textContent;
+    return { nombreProducto, precio, categoria: categoriaProducto };
+  });
 
-    const productosJson = JSON.stringify(productos);
-    const blob = new Blob([productosJson], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'productos.json';
-    link.click();
-    URL.revokeObjectURL(url);
-    showNotification('Productos exportados en un archivo descargable');
+  const productosJson = JSON.stringify(productos);
+  const blob = new Blob([productosJson], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'productos.json';
+  link.click();
+  URL.revokeObjectURL(url);
+  showNotification('Productos exportados en un archivo descargable');
 }
 
 function importarProductos(event) {
-    const archivo = event.target.files[0];
-    const reader = new FileReader();
+  const archivo = event.target.files[0];
+  const reader = new FileReader();
 
-    reader.onload = function (e) {
-        const productos = JSON.parse(e.target.result);
-        const listaProductos = document.getElementById('listaProductos');
-        listaProductos.innerHTML = '';
-        productos.forEach(producto => {
-            document.getElementById('nombreProducto').value = producto.nombreProducto;
-            document.getElementById('precio').value = producto.precio;
-            agregarProducto();
-        });
+  reader.onload = function (e) {
+    const productos = JSON.parse(e.target.result);
+    const listaProductos = document.getElementById('listaProductos');
+    listaProductos.innerHTML = '';
+    productos.forEach(producto => {
+      document.getElementById('nombreProducto').value = producto.nombreProducto;
+      document.getElementById('precio').value = producto.precio;
+      document.getElementById('categoriaProducto').value = producto.categoria;
+      agregarProducto();
+    });
 
-        showNotification('Productos importados correctamente');
-    };
-    reader.readAsText(archivo);
+    showNotification('Productos importados correctamente');
+  };
+  reader.readAsText(archivo);
 }
+
           
 function mostrarOcultarBotonFacturar() {
   const listaProductos = document.getElementById('listaProductos');
@@ -329,12 +456,80 @@ function mostrarOcultarBotonFacturar() {
 
 const botonToggleAgregarProducto = document.getElementById('toggleAgregarProducto');
 const contenidoFormularioAgregarProducto = document.querySelector('.contenidoFormulario');
+const tarjetasProducto = document.querySelectorAll('.producto-card');
 
 botonToggleAgregarProducto.addEventListener('click', () => {
-    const estaVisible = contenidoFormularioAgregarProducto.style.display !== 'none';
-    contenidoFormularioAgregarProducto.style.display = estaVisible ? 'none' : 'block';
-    botonToggleAgregarProducto.innerHTML = estaVisible ? '<i class="fas fa-chevron-down"></i> Agregar Producto' : '<i class="fas fa-chevron-up"></i> Ocultar Menú';
+  contenidoFormularioAgregarProducto.classList.toggle('mostrar');
+  botonToggleAgregarProducto.innerHTML = contenidoFormularioAgregarProducto.classList.contains('mostrar') ? '<i class="fas fa-chevron-up"></i> Ocultar Menú' : '<i class="fas fa-chevron-down"></i> Agregar Producto';
+
+  if (contenidoFormularioAgregarProducto.classList.contains('mostrar')) {
+    const seccionFacturacion = document.querySelector('.facturacion');
+    document.querySelectorAll('.producto-card').forEach(tarjeta => tarjeta.style.backgroundColor = '#b4bbc817');
+    botonToggleAgregarProducto.classList.add('toggle-active');
+    const buscarProducto = document.getElementById('buscarProducto');
+    const productosAFacturar = document.getElementById('productosAFacturar');
+    const botonFacturar = document.getElementById('facturar');
+    const botonSiguienteCliente = document.getElementById('siguienteCliente');
+    seccionFacturacion.style.display = 'none';
+	const productos = document.querySelector('.productos');
+productos.style.backgroundColor = '#fafafa';
+
+    buscarProducto.style.display = 'none';
+    productosAFacturar.style.display = 'none';
+    botonFacturar.style.display = 'none';
+    botonSiguienteCliente.style.display = 'none';
+  } else {
+    const seccionFacturacion = document.querySelector('.facturacion');
+    const buscarProducto = document.getElementById('buscarProducto');
+    document.querySelectorAll('.producto-card').forEach(tarjeta => tarjeta.style.backgroundColor = '#efefef40');
+    botonToggleAgregarProducto.classList.remove('toggle-active');
+    const productosAFacturar = document.getElementById('productosAFacturar');
+    const botonFacturar = document.getElementById('facturar');
+    const botonSiguienteCliente = document.getElementById('siguienteCliente');
+    seccionFacturacion.style.display = 'block';
+    buscarProducto.style.display = 'block';
+	const productos = document.querySelector('.productos');
+productos.style.backgroundColor = '#fff';
+
+    productosAFacturar.style.display = 'block';
+    botonFacturar.style.display = 'block';
+    botonSiguienteCliente.style.display = 'block';
+  }
 });
+
+
+
+
+
+function mostrarOcultarBotonFacturar() {
+  const listaProductos = document.getElementById('listaProductos');
+  const botonFacturar = document.getElementById('facturar');
+  const buscarProducto = document.getElementById('buscarProducto');
+  const siguienteCliente = document.getElementById('siguienteCliente');
+  const productosAFacturar = document.querySelector('#productosAFacturar span');
+  const facturacion = document.querySelector('.facturacion');
+
+  if (listaProductos.children.length === 0) {
+    botonFacturar.style.display = 'none';
+    buscarProducto.style.display = 'none';
+    siguienteCliente.style.display = 'none';
+    productosAFacturar.classList.add('zoom');
+    productosAFacturar.textContent = "Agregue productos para comenzar";
+    facturacion.style.display = 'none';
+  } else {
+    botonFacturar.style.display = 'block';
+    buscarProducto.style.display = 'block';
+    siguienteCliente.style.display = 'block';
+    productosAFacturar.classList.remove('zoom');
+    productosAFacturar.textContent = "Productos a Facturar";
+    facturacion.style.display = 'block';
+  }
+}
+
+mostrarOcultarBotonFacturar();
+
+
+
 
 
 
@@ -386,7 +581,7 @@ function siguienteCliente() {
 
 
   if (total === 0) {
-    mostrarNotificacion("No se pueden facturar $0. Por favor, agregue productos a la factura.", "warning", "fa-exclamation-circle");
+    mostrarNotificacion("‎ No se pueden facturar $0. Por favor, agregue productos a la factura.", "warning", "fa-exclamation-circle");
     return;
   }
   
@@ -421,7 +616,7 @@ function siguienteCliente() {
   document.getElementById("cantidadProductos").innerText = "";
   generarTablaHistorial(factura);
   playSiguienteClienteSound()
-  mostrarNotificacion("Factura realizada. Gracias por su compra", "success", "fa-check");
+  mostrarNotificacion("‎ Factura realizada. Gracias por su compra", "success", "fa-check");
    
     const facturacionDiv = document.querySelector('.facturacion');
        facturacionDiv.style.backgroundColor = '#fafafa';
@@ -451,6 +646,8 @@ function generarTablaHistorial(factura) {
   row.appendChild(totalCell);
   tableBody.appendChild(row);
   saveSalesToLocalStorage();
+  updateSalesTable();
+  updatePagination();
 }
 
 var modalBtn = document.getElementById("modal-btn");
@@ -690,9 +887,9 @@ document.getElementById("facturar").addEventListener("click", function () {
 
     for (const item of Array.from(detalleFacturacion)) {
       const detalleProducto = item.textContent.split(" (")[0];
-      const cantidad = item.textContent.split(" x")[1].split(" unidades")[0];
+      const cantidad = item.textContent.split(" x")[1].split(" unid.")[0];
       const subtotal = item.textContent.split(" = $")[1];
-      itemsFacturados += `${detalleProducto} x${cantidad} unidades ($${subtotal}) + `;
+      itemsFacturados += `${detalleProducto} x${cantidad} unid. ($${subtotal}) + `;
     }
 
     if (itemsFacturados.length > 0) {
@@ -715,7 +912,7 @@ document.getElementById("facturar").addEventListener("click", function () {
 
 
 document.addEventListener('keydown', (event) => {
-  if (event.ctrlKey || event.metaKey) {
+    if (event.altKey) {
     let textQuickNumber = null;
 
     if (event.key === '1') {
@@ -779,19 +976,19 @@ const sounds = [
   "https://raw.githubusercontent.com/maxii1996/BaduCalculator-Online/main/Resources/Factura5.wav",
 ];
 
-let audio; // Definir audio fuera del evento 'click'
+let audio;
 
 if (facturarSoundSelect && playFacturarButton && volumenFacturarSlider) {
   playFacturarButton.addEventListener('click', () => {
     const soundIndex = parseInt(facturarSoundSelect.value) - 1;
     const soundUrl = sounds[soundIndex];
-    audio = new Audio(soundUrl); // Asignar valor a audio dentro del evento 'click'
+    audio = new Audio(soundUrl); 
     audio.volume = volumenFacturarSlider.value / 100;
     audio.play();
   });
 
   volumenFacturarSlider.addEventListener('input', () => {
-    if (audio) { // Asegurarse de que audio está definido antes de cambiar el volumen
+    if (audio) { 
       audio.volume = volumenFacturarSlider.value / 100;
     }
   });
@@ -807,19 +1004,19 @@ const finalizarSounds = [
   "https://raw.githubusercontent.com/maxii1996/BaduCalculator-Online/main/Resources/Final3.wav",
 ];
 
-let finalizarAudio; // Definir finalizarAudio fuera del evento 'click'
+let finalizarAudio; 
 
 if (finalizarSoundSelect && playFinalizarButton && volumenFinalizarSlider) {
   playFinalizarButton.addEventListener('click', () => {
     const soundIndex = parseInt(finalizarSoundSelect.value) - 1;
     const soundUrl = finalizarSounds[soundIndex];
-    finalizarAudio = new Audio(soundUrl); // Asignar valor a finalizarAudio dentro del evento 'click'
+    finalizarAudio = new Audio(soundUrl);
     finalizarAudio.volume = volumenFinalizarSlider.value / 100;
     finalizarAudio.play();
   });
 
   volumenFinalizarSlider.addEventListener('input', () => {
-    if (finalizarAudio) { // Asegurarse de que finalizarAudio está definido antes de cambiar el volumen
+    if (finalizarAudio) { 
       finalizarAudio.volume = volumenFinalizarSlider.value / 100;
     }
   });
@@ -904,13 +1101,13 @@ function loadSalesFromLocalStorage() {
   if (savedSalesHistory) {
     tableBody.innerHTML = savedSalesHistory;
   }
+    updateSalesTable();
+  updatePagination();
 }
-
 
 function closeHistorialVentasModal() {
   $('#historialVentasModal').modal('hide');
 }
-
 
 const closeButtons = document.querySelectorAll("#historialVentasModal .btn-close, #historialVentasModal .btn-secondary");
 closeButtons.forEach(button => {
@@ -918,20 +1115,19 @@ closeButtons.forEach(button => {
 });
 
 
-
 function facturarRapido() {
 guardarConfiguracionFacturacionRapida();
-
-
 }
-
 
 document.getElementById('facturacionRapidaBtn').addEventListener('click', () => {
   $('#facturarapida1').modal('show');
+    actualizarFacturacionRapida();
+  cargarConfiguracionFacturacionRapida(); 
 });
 
 
 function guardarConfiguracionFacturacionRapida() {
+	
   const facturacionRapidaInputs = document.querySelectorAll('.facturacion-rapida-cantidad');
   let configuracion = {};
 
@@ -940,50 +1136,48 @@ function guardarConfiguracionFacturacionRapida() {
     configuracion[nombreProducto] = input.value;
   });
 
-  console.log('Guardando configuración:', configuracion); // Agrega esto para ver la configuración que se está guardando
+  console.log('Guardando configuración:', configuracion); 
   localStorage.setItem("configuracionFacturacionRapida", JSON.stringify(configuracion));
+  
+  
+  const notificationFast = document.getElementById('NotificationFast');
+  notificationFast.classList.remove('d-none');
+
+
+  setTimeout(() => {
+    notificationFast.classList.add('d-none');
+  }, 3000);
 }
 
 const aplicarBtn = document.querySelector("#facturarapida1 .btn-primary");
 aplicarBtn.addEventListener("click", () => {
   facturarRapido();
   guardarConfiguracionFacturacionRapida();
+    resetearValoresFacturacionComun();
+
 });
 
 
-
-
-function cargarValoresFacturacionRapida() {
+function cargarValoresFacturacionRapida(configuracion) {
   const listaProductos = document.getElementById('listaProductos');
   const productos = listaProductos.querySelectorAll('.producto-card');
-  const facturacionRapidaInputs = document.querySelectorAll('.facturacion-rapida-cantidad');
 
-  facturacionRapidaInputs.forEach(input => {
-    const nombreProducto = input.getAttribute('data-producto');
-    productos.forEach(producto => {
-      if (producto.querySelector('.nombreProducto').textContent === nombreProducto) {
-        producto.querySelector('.cantidad').value = input.value;
-      }
-    });
+  productos.forEach(producto => {
+    const nombreProducto = producto.querySelector('.nombreProducto').textContent;
+    if (configuracion.hasOwnProperty(nombreProducto)) {
+      producto.querySelector('.cantidad').value = configuracion[nombreProducto];
+    }
   });
 }
 
 
-
 function cargarConfiguracionFacturacionRapida() {
-  const configuracion = JSON.parse(localStorage.getItem("configuracionFacturacionRapida"));
-  console.log('Cargando configuración:', configuracion); // Agrega esto para ver la configuración cargada
+   const configuracion = JSON.parse(localStorage.getItem("configuracionFacturacionRapida"));
+  console.log('Cargando configuración:', configuracion); 
 
-  if (configuracion) {
-    const facturacionRapidaInputs = document.querySelectorAll('.facturacion-rapida-cantidad');
-
-    facturacionRapidaInputs.forEach(input => {
-      const nombreProducto = input.getAttribute('data-producto');
-      if (configuracion.hasOwnProperty(nombreProducto)) {
-        input.value = configuracion[nombreProducto];
-      }
-    });
-  }
+if (configuracion) {
+    cargarValoresFacturacionRapida(configuracion);
+  } 
 }
 
 
@@ -1009,12 +1203,22 @@ function actualizarFacturacionRapida() {
     formGroup.appendChild(label);
 
     const input = document.createElement('input');
-    input.type = 'number';
-    input.min = '0';
-    input.value = cantidad;
-    input.classList.add('form-control', 'facturacion-rapida-cantidad');
-    input.setAttribute('data-producto', nombreProducto);
-    formGroup.appendChild(input);
+input.type = 'number';
+input.min = '0';
+input.max = '999999'; 
+input.value = cantidad;
+input.classList.add('form-control', 'facturacion-rapida-cantidad');
+input.setAttribute('data-producto', nombreProducto);
+
+
+input.addEventListener('change', function() {
+    if (this.value > 999999) {
+        this.value = 999999;
+        alert('El valor máximo permitido es 999999');
+    }
+});
+
+formGroup.appendChild(input);
 
     col.appendChild(formGroup);
     facturacionRapidaProductos.appendChild(col);
@@ -1027,12 +1231,382 @@ function actualizarFacturacionRapida() {
   });
 }
 
+function resetearValoresFacturacionComun() {
+  const listaProductos = document.getElementById('listaProductos');
+  const productos = listaProductos.querySelectorAll('.producto-card');
+
+  productos.forEach(producto => {
+    producto.querySelector('.cantidad').value = 0;
+  });
+}
+
+
+document.querySelector("#facturarapida1 .btn.btn-secondary").addEventListener("click", () => {
+  resetearValoresFacturacionComun();
+});
+
 
 document.getElementById('facturacionRapidaBtn').addEventListener('click', () => {
   actualizarFacturacionRapida();
   $('#facturarapida1').modal('show');
 });
 
+document.getElementById('cargarFacturacionRapida').addEventListener('click', () => {
+  cargarConfiguracionFacturacionRapida();
+});
+
+ document.getElementById('cargarFacturacionRapida').addEventListener('click', function() {
+    const button = this;
+    const text = button.querySelector('.original-text');
+
+    text.textContent = 'Cargado';
+
+    setTimeout(function() {
+      text.textContent = 'Factura Rápida';
+    }, 1000);
+  });
+
+
+const facturacionRapidaBtn = document.getElementById('facturacionRapidaBtn');
+const facturarapida1 = document.getElementById('facturarapida1');
+
+facturacionRapidaBtn.addEventListener('click', function () {
+
+  const listaProductos = document.getElementById('listaProductos');
+  const productos = listaProductos.querySelectorAll('.producto-card');
+  const hayProductos = productos.length > 0;
+  const mensajeContainer = facturarapida1.querySelector('.mensaje-container');
+  const aplicarFacturacionRapida = document.getElementById('aplicarFacturacionRapida');
+
+  if (hayProductos) {
+    mensajeContainer.style.display = 'none';
+    aplicarFacturacionRapida.style.display = 'block';
+  } else {
+    mensajeContainer.style.display = 'block';
+    aplicarFacturacionRapida.style.display = 'none';
+  }
+});
+
+
+const restablecerFacturacionRapida = document.getElementById('restablecerFacturacionRapida');
+
+restablecerFacturacionRapida.addEventListener('click', function () {
+  const confirmacion = confirm('¿Quieres restablecer todos los valores de los campos?');
+
+  if (confirmacion) {
+    const facturacionRapidaProductos = document.getElementById('facturacionRapidaProductos');
+    const inputs = facturacionRapidaProductos.querySelectorAll('.facturacion-rapida-cantidad');
+
+    inputs.forEach(input => {
+      input.value = 0;
+    });
+  }
+});
+
+
+
+function filterTable() {
+  const searchInput = document.getElementById("searchInput");
+  const searchValue = searchInput.value.toLowerCase();
+  const minPriceInput = document.getElementById("minPriceInput");
+  const maxPriceInput = document.getElementById("maxPriceInput");
+  const minPrice = parseFloat(minPriceInput.value) || -Infinity;
+  const maxPrice = parseFloat(maxPriceInput.value) || Infinity;
+  const table = document.getElementById("historialVentasTbody");
+  const rows = table.querySelectorAll("tr");
+
+  rows.forEach(row => {
+    const productosCell = row.querySelector("td:nth-child(2)");
+    const productosText = productosCell.textContent.toLowerCase();
+    const totalCell = row.querySelector("td:nth-child(3)");
+    const total = parseFloat(totalCell.textContent.replace("$", ""));
+
+    if (productosText.includes(searchValue) && total >= minPrice && total <= maxPrice) {
+      row.style.display = "";
+    } else {
+      row.style.display = "none";
+    }
+  });
+}
+
+function deleteSales() {
+  const tableBody = document.getElementById("historialVentasTbody");
+  tableBody.innerHTML = "";
+  saveSalesToLocalStorage();
+}
+
+const itemsPerPage = 10;
+let currentPage = 1;
+
+function updateSalesTable() {
+  const tableBody = document.getElementById("historialVentasTbody");
+  const sales = Array.from(tableBody.children);
+  sales.forEach((sale, index) => {
+    sale.style.display = index >= (currentPage - 1) * itemsPerPage && index < currentPage * itemsPerPage ? "" : "none";
+  });
+}
+
+function updatePagination() {
+  const tableBody = document.getElementById("historialVentasTbody");
+  const totalPages = Math.ceil(tableBody.children.length / itemsPerPage);
+  const pagination = document.getElementById("salesPagination");
+  
+  pagination.innerHTML = "";
+  for (let i = 1; i <= totalPages; i++) {
+    const li = document.createElement("li");
+    li.classList.add("page-item");
+    if (i === currentPage) li.classList.add("active");
+    li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+    li.addEventListener("click", (e) => {
+      e.preventDefault();
+      currentPage = i;
+      updateSalesTable();
+      updatePagination();
+    });
+    pagination.appendChild(li);
+  }
+}
+
+const autoguardarProductos = document.getElementById('autoguardarProductos');
+
+autoguardarProductos.addEventListener('change', () => {
+  guardarEstadoAutoguardado();
+
+  if (autoguardarProductos.checked) {
+    guardarProductos();
+  }
+});
+
+function guardarEstadoAutoguardado() {
+  const autoguardadoActivo = autoguardarProductos.checked;
+  localStorage.setItem('autoguardadoActivo', autoguardadoActivo);
+}
+
+function cargarEstadoAutoguardado() {
+  const autoguardadoActivo = localStorage.getItem('autoguardadoActivo');
+
+  if (autoguardadoActivo === 'true') {
+    autoguardarProductos.checked = true;
+  } else {
+    autoguardarProductos.checked = false;
+  }
+}
+
+
+function cargarOrdenTarjetas() {
+  const listaProductos = document.getElementById('listaProductos');
+  const tarjetasOrdenJson = localStorage.getItem('tarjetasOrden');
+
+  if (tarjetasOrdenJson) {
+    const tarjetasOrden = JSON.parse(tarjetasOrdenJson);
+    const tarjetasOrdenadas = [];
+
+    tarjetasOrden.forEach((nombreProducto) => {
+      const tarjeta = Array.from(listaProductos.children).find((producto) => {
+        return producto.querySelector('.nombreProducto').textContent === nombreProducto;
+      });
+
+      if (tarjeta) {
+        tarjetasOrdenadas.push(tarjeta);
+      }
+    });
+
+    listaProductos.innerHTML = '';
+    tarjetasOrdenadas.forEach((tarjeta) => {
+      listaProductos.appendChild(tarjeta);
+    });
+  }
+  
+}
+
+function guardarOrdenTarjetas() {
+  const tarjetas = document.querySelectorAll("#listaProductos .producto-card");
+  const ordenTarjetas = Array.from(tarjetas).map(tarjeta => tarjeta.dataset.id);
+  localStorage.setItem("ordenTarjetas", JSON.stringify(ordenTarjetas));
+  console.log("Guardando orden de tarjetas:", ordenTarjetas); // Agrega esta línea para verificar que se está llamando a la función
+}
+
+
+const eliminarProductoModal = document.getElementById("eliminarProductoModal");
+const confirmaDeleteAll = $("#confirmDeleteAllModal");
+const confirmarDeleteAllBtn = document.getElementById("confirmDeleteAll");
+
+let timeoutID;
+let startTime;
+const fillDuration = 3000;
+
+function setButtonProgress(progress) {
+  eliminarProductoModal.innerHTML = `Eliminar<div style="position: absolute; top: 0; left: 0; width: ${progress * 100}%; height: 100%; background-color: rgba(0, 0, 0, 0.2);"></div>`;
+}
+
+eliminarProductoModal.addEventListener("mousedown", () => {
+  startTime = Date.now();
+  setButtonProgress(0);
+  timeoutID = setInterval(() => {
+    const elapsedTime = Date.now() - startTime;
+    const progress = elapsedTime / fillDuration;
+    if (progress >= 1) {
+      clearInterval(timeoutID);
+      setButtonProgress(0);
+      confirmaDeleteAll.modal("show");
+    } else {
+      setButtonProgress(progress);
+    }
+  }, 100);
+});
+
+eliminarProductoModal.addEventListener("mouseleave", () => {
+  clearInterval(timeoutID);
+  setButtonProgress(0);
+});
+
+
+
+eliminarProductoModal.addEventListener("mouseup", () => {
+  clearInterval(timeoutID);
+  setButtonProgress(0);
+});
+
+let editarProductoModal;
+
+
+confirmarDeleteAllBtn.addEventListener("click", () => {
+  const listaProductos = document.getElementById("listaProductos");
+  listaProductos.innerHTML = "";
+  confirmaDeleteAll.modal("hide");
+  guardarProductos();
+cerrarEditarProducto.click();
+  cerrarEditarProductoModal();
+});
+
+
+function cerrarEditarProductoModal() {
+  $('#editarProductoModal').modal('hide');
+}
+
+
+
+function agregarCategoria(nombre = '', color = '#000000') {
+  const categoriaTemplate = `
+    <div class="categoria mb-2 d-flex">
+      <input type="text" class="form-control nombreCategoria" value="${nombre}" placeholder="Nueva Categoría">
+      <input type="color" class="form-control colorCategoria" value="${color}">
+      <!-- Agrega este botón -->
+      <button class="btn btn-danger eliminarCategoria ml-2">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  `;
+
+  const categoriasContainer = document.getElementById('categoriasContainer');
+  categoriasContainer.insertAdjacentHTML('beforeend', categoriaTemplate);
+
+
+  const eliminarCategoriaBtn = categoriasContainer.querySelector('.categoria:last-child .eliminarCategoria');
+  eliminarCategoriaBtn.addEventListener('click', eliminarCategoria);
+}
+
+function cerrarAdministrarCategorias() {
+  if (administrarCategoriasModal) {
+    administrarCategoriasModal.hide();
+  }
+}
+
+function abrirAdministrarCategorias() {
+  if (!administrarCategoriasModal) {
+    administrarCategoriasModal = new bootstrap.Modal(document.getElementById('administrarCategoriasModal'), {
+      backdrop: 'static',
+      keyboard: false
+    });
+  }
+  administrarCategoriasModal.show();
+}
+
+
+function agregarCategoriaBtnHandler() {
+  agregarCategoria('Nueva Categoría');
+}
+
+function guardarCategorias() {
+  const categoriasContainer = document.getElementById('categoriasContainer');
+  const categorias = Array.from(categoriasContainer.querySelectorAll('.categoria'));
+  const categoriasData = categorias.map(categoria => {
+      return {
+          nombre: categoria.querySelector('.nombreCategoria').value,
+          color: categoria.querySelector('.colorCategoria').value
+      };
+  });
+
+  localStorage.setItem('categorias', JSON.stringify(categoriasData));
+  cerrarAdministrarCategorias();
+  actualizarCategoriasProductos(); 
+
+  const categoriasNotificacion = document.getElementById('categoriasNotificacion');
+  categoriasNotificacion.classList.remove('d-none');
+  setTimeout(() => {
+    categoriasNotificacion.classList.add('d-none');
+  }, 3000);
+}
+
+function cargarCategorias() {
+  const categoriasData = JSON.parse(localStorage.getItem('categorias')) || [];
+
+  categoriasData.forEach(categoriaData => {
+      agregarCategoria(categoriaData.nombre, categoriaData.color);
+  });
+}
+
+
+function eliminarCategoria(event) {
+  const categoria = event.target.closest('.categoria');
+  if (categoria) {
+    categoria.remove();
+  }
+}
+
+function cargarCategoriasSelect() {
+  const categoriasSelect = document.getElementById('categoriaProducto');
+  categoriasSelect.innerHTML = '';
+
+  const categorias = JSON.parse(localStorage.getItem('categorias')) || [];
+  categorias.forEach(categoria => {
+    const option = document.createElement('option');
+    option.value = categoria.nombre;
+    option.textContent = categoria.nombre;
+    categoriasSelect.appendChild(option);
+  });
+}
+
+function actualizarCategoriaSelect(producto) {
+  const categoriaProducto = producto.querySelector('.categoriaProducto').textContent;
+  const categoriaSelect = document.getElementById('categoriaProducto');
+  categoriaSelect.value = categoriaProducto;
+}
+
+
+function actualizarCategoriasProductos() {
+  const categorias = JSON.parse(localStorage.getItem('categorias')) || [];
+  const productos = document.querySelectorAll('.producto-card');
+
+  productos.forEach(producto => {
+    const categoriaProducto = producto.querySelector('.categoriaProducto').textContent;
+    const categoriaEncontrada = categorias.find(cat => cat.nombre === categoriaProducto);
+
+    if (categoriaEncontrada) {
+      const categoriaNombre = producto.querySelector('.categoriaNombre');
+      categoriaNombre.textContent = categoriaEncontrada.nombre;
+      categoriaNombre.style.backgroundColor = categoriaEncontrada.color;
+      categoriaNombre.style.color = 'white'; // Establecer el color del texto de la categoría en blanco
+    }
+  });
+}
+
+
+
+
+
+
+let administrarCategoriasModal;
 
 
 init();

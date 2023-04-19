@@ -1,9 +1,13 @@
+
+
 body {
     font-family: Arial, sans-serif;
     line-height: 1.6;
     margin: 0;
     padding: 0;
+	
 }
+
 
 
 h2 {
@@ -104,6 +108,9 @@ header nav {
   font-size: 1.2rem;
   font-family: Segoe UI, sans-serif;
   white-space: nowrap;
+  display: block;
+  text-align: center;
+  margin-bottom: 0.5rem;
 }
 
 
@@ -221,10 +228,14 @@ button {
 .producto-card {
   position: relative;
   padding: 16px;
-  background-color: #fff;
+  background-color: #efefef40;
   border-radius: 7px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+
+
+
+
 
 .editarProducto {
   position: absolute;
@@ -248,17 +259,17 @@ button {
    margin-top: 2rem;
   justify-content: space-between;
   margin-bottom: 16px;
+  align-items: center;
 }
 
 
-.producto-grid-item:nth-child(even) .producto-card {
-  background-color: #f2f2f2;
-}
+
 
 
 .boton-icono i {
   display: block; 
   margin-bottom: 0.1rem;
+  
    padding: 8px 15px;
 }
 
@@ -270,8 +281,9 @@ button {
   margin-right: 5px;
   margin-bottom: 5px;
   padding: 2rem;
-  width: 120px;
-  height: 80px;
+
+  width: 90px;
+  height: 70px;
 }
 
 .boton-icono svg {
@@ -282,6 +294,7 @@ button {
 #contenedor-botones {
   display: flex;
   flex-wrap: wrap;
+  
   margin-top: 2px;
   margin-bottom: 2px;
   justify-content: center;
@@ -438,7 +451,7 @@ footer {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  height: 100%:
+  height: 100%;
   
 }
 
@@ -452,9 +465,7 @@ footer {
   max-width: 100%;
 }
 
-.contenidoFormulario {
-  width: 40%;
-}
+
 
 
 #productosAFacturar {
@@ -522,8 +533,313 @@ h1 {
 }
 
 .modal-fullscreen {
-  background-color: #00000060;
+  background-color: #f0f0f0;
   color: black;
-  
+ 
 }
 
+#facturacionRapidaBtn {
+  height: 30%;
+  width: 55%;
+  margin-right: 12rem;
+  padding: 2.2rem;
+  padding-left: 1.3rem;
+  padding-right: 1.4rem;
+  border-radius: 0.5rem;
+  font-size: 1.3rem;
+  line-height: 1.2rem;
+  display: flex;
+  align-items: left;
+  justify-content: left;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  transition: all 0.2s ease-in-out;
+}
+
+#facturacionRapidaBtn i {
+  margin-right: 0.3rem;
+}
+
+#facturacionRapidaBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  background-color: #6799e9;
+}
+
+.cta {
+
+
+  text-decoration: none;
+  font-size: 17px;
+  color: white;
+  background: #6225E6;
+  transition: 2s;
+  box-shadow: 6px 6px 0 black;
+  transform: skewX(-15deg);
+  border: none;
+  cursor: pointer;
+}
+
+.custom-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  background: #3a2471;
+  color: #fff;
+    text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.85);
+  width: 11rem;
+  height: 2.7rem;
+  border: 0;
+  font-size: 15px;
+  border-radius: 4px;
+   font-family: Arial, sans-serif;
+   font-weight: 500;
+  transition: 1.3s;
+  overflow: hidden;
+  padding: 0 10px;
+  justify-content: center;
+}
+
+.custom-btn:focus {
+  outline: 0;
+}
+
+.custom-btn:before {
+  content: '';
+  display: block;
+  position: absolute;
+  background: rgba(255, 255, 255, 0.5);
+  width: 10rem;
+  height: 100%;
+  left: 0;
+  top: 0;
+  opacity: .5;
+  filter: blur(30px);
+  transform: translateX(-100px)  skewX(-15deg);
+}
+
+.custom-btn:after {
+  content: '';
+  display: block;
+  position: absolute;
+  background: rgba(255, 255, 255, 0.2);
+  width: 30px;
+  height: 100%;
+  left: 30px;
+  top: 0;
+  opacity: 0;
+  filter: blur(5px);
+  transform: translateX(-100px) skewX(-15deg);
+}
+
+.custom-btn:hover {
+   background: #3a2471;
+  cursor: pointer;
+}
+
+.custom-btn:hover:before {
+  transform: translateX(300px)  skewX(-15deg);
+  opacity: 0.3;
+  transition: .7s;
+}
+
+.custom-btn:hover:after {
+  transform: translateX(300px) skewX(-15deg);
+  opacity: 1;
+  transition: .7s;
+ 
+}
+
+.alert-custom {
+  position: fixed;
+  top: 0;
+  right: 0;
+  margin: 1rem;
+  animation-name: slideDown;
+  animation-duration: 0.5s;
+}
+
+.fadeOut {
+  animation-name: fadeOut;
+  animation-duration: 1s;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+
+.contenidoFormulario .form-tarjeta {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease-out, opacity 0.5s ease-out;
+  width: 90%;
+  margin: 0 auto;
+  background-color: #ffffff;
+  padding: 2rem;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  border: 1px solid #cccccc;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 0.25rem;
+  opacity: 0;
+  height: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+
+.contenidoFormulario.mostrar .form-tarjeta {
+  max-height: 10rem;
+  opacity: 1;
+
+}
+
+.contenidoFormulario .form-tarjeta .form-group {
+  display: inline-block;
+  width: 100%;
+  margin-top: 5%;
+   margin-bottom: 5%;
+  margin-right: 5%;
+}
+
+.contenidoFormulario .form-tarjeta .form-group:last-child {
+  margin-right: 50;
+   margin-top: 5%;
+   margin-bottom: 5%;
+}
+
+.contenidoFormulario .form-tarjeta button {
+  margin-left: 1rem;
+}
+
+#toggleAgregarProducto {
+  width: 45%;
+  font-size: 0.96rem;
+  height: 3.4rem;
+  transition: transform 0.3s ease-in-out;
+}
+
+#toggleAgregarProducto:hover {
+  animation: grow 1s infinite alternate;
+}
+
+@keyframes grow {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(0.98);
+  }
+}
+
+
+.productos {
+  background-color: #fafafa;
+}
+
+
+.toggle {
+  cursor: pointer;
+  display: inline-block;
+}
+
+.toggle-switch {
+  display: inline-block;
+  background: #ccc;
+  border-radius: 16px;
+  width: 58px;
+  height: 32px;
+  position: relative;
+  vertical-align: middle;
+  transition: background 0.25s;
+}
+.toggle-switch:before, .toggle-switch:after {
+  content: "";
+}
+.toggle-switch:before {
+  display: block;
+  background: linear-gradient(to bottom, #fff 0%, #eee 100%);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
+  width: 24px;
+  height: 24px;
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  transition: left 0.25s;
+}
+.toggle:hover .toggle-switch:before {
+  background: linear-gradient(to bottom, #fff 0%, #fff 100%);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5);
+}
+.toggle-checkbox:checked + .toggle-switch {
+  background: #56c080;
+}
+.toggle-checkbox:checked + .toggle-switch:before {
+  left: 30px;
+}
+
+.toggle-checkbox {
+  position: absolute;
+  visibility: hidden;
+}
+
+.toggle-label {
+  margin-left: 1px;
+  position: relative;
+  top: 2px;
+  right: 0rem;
+    opacity: 0.8;
+  font-size: 0.61rem;
+}
+
+.btn-group button.btn {
+font-size: 0.74rem;
+
+  line-height: 1.2;
+}
+
+/* Asegúrate de reemplazar .producto-card con la clase que utilices para las tarjetas de productos */
+.producto-card {
+  cursor: grab;
+}
+
+.producto-card:active {
+  cursor: grabbing;
+}
+
+.placeholder {
+  border: 1px dashed #cccccc;
+  background-color: #f5f5f5;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.categoria-label {
+  font-size: 0.8rem;
+  padding: 2px 4px;
+  border-radius: 4px;
+  color: #ffffff;
+}
+
+.categoriaNombre {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+}
