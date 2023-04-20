@@ -17,13 +17,15 @@ document.getElementById("confirmDeleteButton").addEventListener("click", () => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-	
+
   cargarEstadoAutoguardado();
   console.log('DOMContentLoaded');
   cargarProductos();
   loadSavedTexts();
   loadSalesFromLocalStorage();
   mostrarOcultarBotonFacturar();
+  cargarCategoriasSelect('categoriaProductoAgregar');
+
   const productos = document.querySelector('.productos');
   productos.style.backgroundColor = '#fff';
 
@@ -36,17 +38,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const facturarRapidaModal = $("#facturarapida1");
   const cargarFacturacionRapidaBtn = document.getElementById("cargarFacturacionRapida");
   cargarFacturacionRapidaBtn.addEventListener("click", cargarValoresFacturacionRapida);
-   
-    $("#listaProductos").sortable({
+
+  $("#listaProductos").sortable({
     placeholder: "placeholder",
     forcePlaceholderSize: true,
     stop: () => {
       guardarOrdenTarjetas();
-	  guardarProductos();
+      guardarProductos();
     }
   });
-	
-	
+
 
   const abrirAdministrarCategorias = document.getElementById('abrirAdministrarCategorias');
   const administrarCategoriasModalElement = document.getElementById('administrarCategoriasModal');
@@ -59,9 +60,10 @@ document.addEventListener("DOMContentLoaded", () => {
     administrarCategoriasModal.show();
   });
 
-// Reemplaza el evento 'click' del botón agregarCategoria
-document.getElementById('agregarCategoria').removeEventListener('click', agregarCategoria);
-document.getElementById('agregarCategoria').addEventListener('click', agregarCategoriaBtnHandler);
+  document.getElementById('cancelarEliminarCategoria').addEventListener('click', cerrarConfirmarEliminarCategoriaModal);
+
+  document.getElementById('agregarCategoria').removeEventListener('click', agregarCategoria);
+  document.getElementById('agregarCategoria').addEventListener('click', agregarCategoriaBtnHandler);
   document.getElementById('guardarCategorias').addEventListener('click', guardarCategorias);
   document.getElementById('cancelarAdministrarCategorias').addEventListener('click', cerrarAdministrarCategorias);
   document.getElementById('cerrarAdministrarCategorias').addEventListener('click', cerrarAdministrarCategorias);
@@ -74,9 +76,18 @@ document.getElementById('agregarCategoria').addEventListener('click', agregarCat
   document.getElementById('reset-quick-text-2-btn').addEventListener('click', resetQuickText2);
   document.getElementById('reset-quick-text-3-btn').addEventListener('click', resetQuickText3);
 
+  document.getElementById('confirmarEliminarCategoria').addEventListener('click', () => {
+    if (categoriaAEliminar) {
+      categoriaAEliminar.remove();
+      categoriaAEliminar = null;
+    }
+    cerrarConfirmarEliminarCategoriaModal();
+  });
+  
 
 
-	
+
+
 });
 
 
@@ -85,21 +96,25 @@ document.getElementById('agregarCategoria').addEventListener('click', agregarCat
 let productoId = 0;
 
 function agregarProducto() {
-    if (agregarProductoSinNotificacion()) { 
-        mostrarNotificacion('Producto agregado correctamente', 'success', '');
+  const categoriaSeleccionada = document.getElementById('categoriaProductoAgregar').value;
+  if (agregarProductoSinNotificacion(categoriaSeleccionada)) {
+    mostrarNotificacion('Producto agregado correctamente', 'success', '');
 
-        if (autoguardarProductos.checked) {
-            guardarProductos();
-        }
+    if (autoguardarProductos.checked) {
+      guardarProductos();
     }
+
+    showStep(0);
+  }
 }
+
+
 
 function esProductoDuplicado(nombreProducto) {
-    const listaProductos = document.getElementById('listaProductos');
-    const productos = listaProductos.querySelectorAll('.nombreProducto');
-    return Array.from(productos).some(producto => producto.textContent === nombreProducto);
+  const listaProductos = document.getElementById('listaProductos');
+  const productos = listaProductos.querySelectorAll('.nombreProducto');
+  return Array.from(productos).some(producto => producto.textContent === nombreProducto);
 }
-
 
 function mostrarNotificacion(mensaje, tipo, icono) {
   const notificacion = document.createElement('div');
@@ -115,10 +130,9 @@ function mostrarNotificacion(mensaje, tipo, icono) {
       notificacion.remove();
     }, 1000);
   }, 3000);
-  
+
   notificacion.classList.add('alert-custom');
 }
-
 
 
 function editarProducto(event) {
@@ -134,10 +148,10 @@ function editarProducto(event) {
   const cerrarEditarProducto = document.getElementById('cerrarEditarProducto');
   const nuevoNombreInput = document.getElementById('nuevoNombreProducto');
   const nuevoPrecioInput = document.getElementById('nuevoPrecioProducto');
-  
+
   nuevoNombreInput.value = nombreProducto.textContent;
   nuevoPrecioInput.value = parseFloat(precio.textContent.substring(1));
-  cargarCategoriasSelect();
+  cargarCategoriasSelect('categoriaProducto');
   actualizarCategoriaSelect(producto);
   editarProductoModal.show();
 
@@ -151,7 +165,7 @@ function editarProducto(event) {
 
       const nuevoColorCategoria = obtenerColorCategoria(nuevaCategoriaProducto);
       categoriaNombre.style.backgroundColor = nuevoColorCategoria;
-      categoriaNombre.style.color = 'white'; // Establecer el color del texto de la categoría en blanco
+      categoriaNombre.style.color = 'white';
       producto.querySelector('.categoriaProducto').textContent = nuevaCategoriaProducto;
     }
 
@@ -191,7 +205,7 @@ function editarProducto(event) {
   };
 
   eliminarProductoModal.onclick = () => {
-     eliminarProducto(producto, editarProductoModal);
+    eliminarProducto(producto, editarProductoModal);
   };
 }
 
@@ -205,21 +219,19 @@ function eliminarProducto(producto, editarProductoModal) {
   confirmDeleteSingleModal.modal("show");
 
   confirmDeleteSingleBtn.addEventListener("click", () => {
-  producto.remove();
-  mostrarNotificacion('Producto eliminado correctamente', 'success');
-  mostrarOcultarBotonFacturar();
-  cerrarEditarProductoModal();
-  guardarProductos();
-  cargarProductos();
-  confirmDeleteSingleModal.modal("hide");
-    cerrarEditarProducto.click(); // Cierra el modal de "Editar Producto"
+    producto.remove();
+    mostrarNotificacion('Producto eliminado correctamente', 'success');
+    mostrarOcultarBotonFacturar();
+    cerrarEditarProductoModal();
+    guardarProductos();
+    cargarProductos();
+    confirmDeleteSingleModal.modal("hide");
+    cerrarEditarProducto.click();
 
 
-});
+  });
 
 }
-
-
 
 
 function actualizarPrecio(precioElement, nuevoPrecio) {
@@ -227,41 +239,41 @@ function actualizarPrecio(precioElement, nuevoPrecio) {
 }
 
 function facturar() {
-    const listaProductos = document.getElementById('listaProductos');
-    const productos = listaProductos.querySelectorAll('.producto-card');
-    const detalleFacturacion = document.getElementById('detalleFacturacion');
-    let total = 0;
-    let cantidadProductos = 0;
+  const listaProductos = document.getElementById('listaProductos');
+  const productos = listaProductos.querySelectorAll('.producto-card');
+  const detalleFacturacion = document.getElementById('detalleFacturacion');
+  let total = 0;
+  let cantidadProductos = 0;
 
-    detalleFacturacion.innerHTML = '';
-    productos.forEach(producto => {
-        const nombreProducto = producto.querySelector('.nombreProducto').textContent;
-        const precio = parseFloat(producto.querySelector('.precio').textContent.substring(1));
-        const cantidad = parseInt(producto.querySelector('.cantidad').value);
+  detalleFacturacion.innerHTML = '';
+  productos.forEach(producto => {
+    const nombreProducto = producto.querySelector('.nombreProducto').textContent;
+    const precio = parseFloat(producto.querySelector('.precio').textContent.substring(1));
+    const cantidad = parseInt(producto.querySelector('.cantidad').value);
 
-        if (cantidad > 0) {
-            const subtotal = precio * cantidad;
-            total += subtotal;
-            cantidadProductos += cantidad;
-            const detalle = document.createElement('li');
-            detalle.innerHTML = `${nombreProducto} ($${precio}) x${cantidad} unid. = $${subtotal.toFixed(2)}`;
-            detalleFacturacion.appendChild(detalle);
-        }
-    });
+    if (cantidad > 0) {
+      const subtotal = precio * cantidad;
+      total += subtotal;
+      cantidadProductos += cantidad;
+      const detalle = document.createElement('li');
+      detalle.innerHTML = `${nombreProducto} ($${precio}) x${cantidad} unid. = $${subtotal.toFixed(2)}`;
+      detalleFacturacion.appendChild(detalle);
+    }
+  });
 
-    const botonSiguienteCliente = document.getElementById("siguienteCliente");
-    botonSiguienteCliente.disabled = false;
+  const botonSiguienteCliente = document.getElementById("siguienteCliente");
+  botonSiguienteCliente.disabled = false;
 
-    document.getElementById('total').textContent = total.toFixed(2);
-    document.getElementById('cantidadProductos').textContent = `Cantidad de Productos facturados: ${cantidadProductos}`;
+  document.getElementById('total').textContent = total.toFixed(2);
+  document.getElementById('cantidadProductos').textContent = `Cantidad de Productos facturados: ${cantidadProductos}`;
 
-    const facturacionDiv = document.querySelector('.facturacion');
-    if (total !== 0) {
-        facturacionDiv.style.backgroundColor = '#EAEDF290';
-		 playFacturarSound();
-    } else {
-        facturacionDiv.style.backgroundColor = '#fafafa';
-    }		
+  const facturacionDiv = document.querySelector('.facturacion');
+  if (total !== 0) {
+    facturacionDiv.style.backgroundColor = '#EAEDF290';
+    playFacturarSound();
+  } else {
+    facturacionDiv.style.backgroundColor = '#fafafa';
+  }
 }
 
 document.getElementById('cargarProductos').addEventListener('click', cargarProductos);
@@ -281,7 +293,7 @@ function guardarProductos() {
       return {
         nombreProducto: nombreProducto.textContent,
         precio: parseFloat(precio.textContent.substring(1)),
-        categoria: categoriaProducto.textContent, // Incluir la categoría al guardar los productos
+        categoria: categoriaProducto.textContent,
       };
     }
   }).filter(producto => producto);
@@ -290,7 +302,6 @@ function guardarProductos() {
   localStorage.setItem('productos', productosJson);
   showNotification('Los cambios se han guardado y aplicado correctamente', 3000, 'success', 'fa fa-check');
 }
-
 
 
 function cargarProductos() {
@@ -322,19 +333,17 @@ function cargarProductos() {
     document.getElementById('nombreProducto').value = producto.nombreProducto;
     document.getElementById('precio').value = producto.precio;
     document.getElementById('categoriaProducto').value = producto.categoria;
-    agregarProductoSinNotificacion(producto.categoria); // Pasa la categoría como argumento
+    agregarProductoSinNotificacion(producto.categoria);
   });
 
   cargarOrdenTarjetas();
 }
 
 
-
-
-function agregarProductoSinNotificacion(categoria) { // Agrega el argumento 'categoria'
+function agregarProductoSinNotificacion(categoria) {
   const nombreProducto = document.getElementById('nombreProducto').value.trim();
   const precio = document.getElementById('precio').value;
-  const categoriaColor = obtenerColorCategoria(categoria); // Obtén el color de la categoría
+  const categoriaColor = obtenerColorCategoria(categoria);
 
 
   if (esProductoDuplicado(nombreProducto)) {
@@ -354,14 +363,14 @@ function agregarProductoSinNotificacion(categoria) { // Agrega el argumento 'cat
 
   const listaProductos = document.getElementById('listaProductos');
   const nuevoProducto = document.createElement('div');
-    nuevoProducto.innerHTML = document
+  nuevoProducto.innerHTML = document
     .getElementById('productoTemplate')
     .innerHTML.replace(/{id}/g, productoId)
     .replace('{nombreProducto}', nombreProducto)
     .replace('{precio}', precio)
     .replace('{categoria}', categoria || '')
-    .replace('{categoriaNombre}', categoria || '') // Agrega el nombre de la categoría
-    .replace('{categoriaColor}', categoriaColor); // Agrega el color de la categoría
+    .replace('{categoriaNombre}', categoria || '')
+    .replace('{categoriaColor}', categoriaColor || '');
 
 
   nuevoProducto.querySelector('.editarProducto').addEventListener('click', editarProducto);
@@ -383,9 +392,8 @@ function agregarProductoSinNotificacion(categoria) { // Agrega el argumento 'cat
 function obtenerColorCategoria(categoria) {
   const categorias = JSON.parse(localStorage.getItem('categorias')) || [];
   const categoriaEncontrada = categorias.find(cat => cat.nombre === categoria);
-  return categoriaEncontrada ? categoriaEncontrada.color : '#000000'; // Retorna el color de la categoría si la encuentra, de lo contrario retorna negro
+  return categoriaEncontrada ? categoriaEncontrada.color : '#000000';
 }
-
 
 
 function exportarProductos() {
@@ -428,7 +436,7 @@ function importarProductos(event) {
   reader.readAsText(archivo);
 }
 
-          
+
 function mostrarOcultarBotonFacturar() {
   const listaProductos = document.getElementById('listaProductos');
   const botonFacturar = document.getElementById('facturar');
@@ -471,8 +479,8 @@ botonToggleAgregarProducto.addEventListener('click', () => {
     const botonFacturar = document.getElementById('facturar');
     const botonSiguienteCliente = document.getElementById('siguienteCliente');
     seccionFacturacion.style.display = 'none';
-	const productos = document.querySelector('.productos');
-productos.style.backgroundColor = '#fafafa';
+    const productos = document.querySelector('.productos');
+    productos.style.backgroundColor = '#fafafa';
 
     buscarProducto.style.display = 'none';
     productosAFacturar.style.display = 'none';
@@ -488,17 +496,14 @@ productos.style.backgroundColor = '#fafafa';
     const botonSiguienteCliente = document.getElementById('siguienteCliente');
     seccionFacturacion.style.display = 'block';
     buscarProducto.style.display = 'block';
-	const productos = document.querySelector('.productos');
-productos.style.backgroundColor = '#fff';
+    const productos = document.querySelector('.productos');
+    productos.style.backgroundColor = '#fff';
 
     productosAFacturar.style.display = 'block';
     botonFacturar.style.display = 'block';
     botonSiguienteCliente.style.display = 'block';
   }
 });
-
-
-
 
 
 function mostrarOcultarBotonFacturar() {
@@ -527,11 +532,6 @@ function mostrarOcultarBotonFacturar() {
 }
 
 mostrarOcultarBotonFacturar();
-
-
-
-
-
 
 function showNotification(message, duration = 3000) {
   const notification = document.getElementById('notification');
@@ -584,7 +584,7 @@ function siguienteCliente() {
     mostrarNotificacion("‎ No se pueden facturar $0. Por favor, agregue productos a la factura.", "warning", "fa-exclamation-circle");
     return;
   }
-  
+
   const inputsCantidad = document.querySelectorAll(".producto-card input.cantidad");
   const detalleFacturacion = document.getElementById("detalleFacturacion");
   let factura = {
@@ -617,16 +617,16 @@ function siguienteCliente() {
   generarTablaHistorial(factura);
   playSiguienteClienteSound()
   mostrarNotificacion("‎ Factura realizada. Gracias por su compra", "success", "fa-check");
-   
-    const facturacionDiv = document.querySelector('.facturacion');
-       facturacionDiv.style.backgroundColor = '#fafafa';
+
+  const facturacionDiv = document.querySelector('.facturacion');
+  facturacionDiv.style.backgroundColor = '#fafafa';
 
 }
 
 
 
 function generarTablaHistorial(factura) {
-	
+
   const tableBody = document.getElementById("historialVentasTbody");
   const row = document.createElement("tr");
   const fechaCell = document.createElement("td");
@@ -664,11 +664,11 @@ var savedEndMessage = localStorage.getItem("savedEndMessage");
 var optionsBtn = document.getElementById("modal-btn");
 var modalContainer = document.getElementById("modal-container");
 
-modalBtn.onclick = function() {
+modalBtn.onclick = function () {
   modalContainer.style.display = "block";
 }
 
-closeModalBtn.onclick = function() {
+closeModalBtn.onclick = function () {
   modalContainer.style.display = "none";
 }
 
@@ -690,30 +690,30 @@ if (savedEndMessage !== null) {
   endMessageInput.value = savedEndMessage;
 }
 
-resetBtn.onclick = function() {
+resetBtn.onclick = function () {
   messageInput.value = "/do La factura mostraría: ";
 }
 
-resetEndMessageBtn.onclick = function() {
+resetEndMessageBtn.onclick = function () {
   endMessageInput.value = defaultEndMessage;
 }
 
-optionsBtn.onclick = function() {
+optionsBtn.onclick = function () {
   modalContainer.style.display = "block";
 }
 
-modalContainer.addEventListener("click", function(event) {
+modalContainer.addEventListener("click", function (event) {
   event.stopPropagation();
 });
 
 var resetEndMessageBtn = document.getElementById("reset-end-message-btn");
-resetEndMessageBtn.addEventListener("click", function() {
+resetEndMessageBtn.addEventListener("click", function () {
   var endMessageInput = document.getElementById("end-message-input");
   endMessageInput.value = "Favor de abonar el importe al tendero más cercano. Gracias por su compra.";
 });
 
 var saveBtn = document.getElementById("save-btn");
-saveBtn.addEventListener("click", function() {
+saveBtn.addEventListener("click", function () {
   var messageInput = document.getElementById("message-input");
   var endMessageInput = document.getElementById("end-message-input");
   var finalTextInput = document.getElementById("final-text-input");
@@ -734,11 +734,11 @@ saveBtn.addEventListener("click", function() {
 
   showNotification(`Cambios en los textos y configuraciones de sonido guardados correctamente`);
   closeModal();
- 
+
 });
 
 
-resetBtn.onclick = function() {
+resetBtn.onclick = function () {
   messageInput.value = "/do La factura mostraría: ";
 };
 
@@ -752,31 +752,31 @@ function closeModal() {
 
 
 function saveOptions() {
-    localStorage.setItem('message', document.getElementById('message-input').value);
-    localStorage.setItem('endMessage', document.getElementById('end-message-input').value);
-	localStorage.setItem('finalText', document.getElementById('final-text-input').value);
-    localStorage.setItem('quickText1', document.getElementById('quick-text-1-input').value);
-    localStorage.setItem('quickText2', document.getElementById('quick-text-2-input').value);
-    localStorage.setItem('quickText3', document.getElementById('quick-text-3-input').value);
-     localStorage.setItem("facturarSound", document.getElementById("facturarSound").value);
+  localStorage.setItem('message', document.getElementById('message-input').value);
+  localStorage.setItem('endMessage', document.getElementById('end-message-input').value);
+  localStorage.setItem('finalText', document.getElementById('final-text-input').value);
+  localStorage.setItem('quickText1', document.getElementById('quick-text-1-input').value);
+  localStorage.setItem('quickText2', document.getElementById('quick-text-2-input').value);
+  localStorage.setItem('quickText3', document.getElementById('quick-text-3-input').value);
+  localStorage.setItem("facturarSound", document.getElementById("facturarSound").value);
   localStorage.setItem("finalizarSound", document.getElementById("finalizarSound").value);
   localStorage.setItem("volumenFacturar", document.getElementById("volumenFacturar").value);
   localStorage.setItem("volumenFinalizar", document.getElementById("volumenFinalizar").value);
 
   showNotification(`Cambios en los textos y configuraciones de sonido guardados correctamente`);
   closeModal();
-   
+
 }
 
 function init() {
-   
-    const messageInput = document.getElementById('message-input');
-    const endMessageInput = document.getElementById('end-message-input');
-    messageInput.value = localStorage.getItem('message') || '/do La factura mostraría';
-    endMessageInput.value = localStorage.getItem('endMessage') || 'Favor de abonar el importe al tendero más cercano. Gracias por su compra.';
-const finalTextInput = document.getElementById('final-text-input');
+
+  const messageInput = document.getElementById('message-input');
+  const endMessageInput = document.getElementById('end-message-input');
+  messageInput.value = localStorage.getItem('message') || '/do La factura mostraría';
+  endMessageInput.value = localStorage.getItem('endMessage') || 'Favor de abonar el importe al tendero más cercano. Gracias por su compra.';
+  const finalTextInput = document.getElementById('final-text-input');
   finalTextInput.value = localStorage.getItem('finalText') || '>> TOTAL A PAGAR: ';
-  
+
   const quickText1Input = document.getElementById('quick-text-1-input');
   quickText1Input.value = localStorage.getItem('quickText1') || '';
 
@@ -785,7 +785,7 @@ const finalTextInput = document.getElementById('final-text-input');
 
   const quickText3Input = document.getElementById('quick-text-3-input');
   quickText3Input.value = localStorage.getItem('quickText3') || '';
-  
+
 }
 
 function resetFinalText() {
@@ -805,14 +805,14 @@ function resetQuickText3() {
 }
 
 function exportarConfig() {
-   const config = {
+  const config = {
     message: document.getElementById("message-input").value,
     endMessage: document.getElementById("end-message-input").value,
     finalText: document.getElementById("final-text-input").value,
     quickText1: document.getElementById("quick-text-1-input").value,
     quickText2: document.getElementById("quick-text-2-input").value,
     quickText3: document.getElementById("quick-text-3-input").value,
-	 facturarSound: document.getElementById("facturarSound").value,
+    facturarSound: document.getElementById("facturarSound").value,
     finalizarSound: document.getElementById("finalizarSound").value,
     volumenFacturar: document.getElementById("volumenFacturar").value,
     volumenFinalizar: document.getElementById("volumenFinalizar").value,
@@ -845,8 +845,8 @@ function importarConfig(event) {
     localStorage.setItem("quickText1", config.quickText1);
     localStorage.setItem("quickText2", config.quickText2);
     localStorage.setItem("quickText3", config.quickText3);
-	
-	document.getElementById("facturarSound").value = config.facturarSound;
+
+    document.getElementById("facturarSound").value = config.facturarSound;
     document.getElementById("finalizarSound").value = config.finalizarSound;
     document.getElementById("volumenFacturar").value = config.volumenFacturar;
     document.getElementById("volumenFinalizar").value = config.volumenFinalizar;
@@ -855,7 +855,7 @@ function importarConfig(event) {
     localStorage.setItem("finalizarSound", config.finalizarSound);
     localStorage.setItem("volumenFacturar", config.volumenFacturar);
     localStorage.setItem("volumenFinalizar", config.volumenFinalizar);
-	
+
   };
 
   reader.readAsText(input.files[0]);
@@ -893,7 +893,7 @@ document.getElementById("facturar").addEventListener("click", function () {
     }
 
     if (itemsFacturados.length > 0) {
-      itemsFacturados = itemsFacturados.slice(0, -3); 
+      itemsFacturados = itemsFacturados.slice(0, -3);
     }
 
     const total = document.getElementById("total").textContent;
@@ -912,7 +912,7 @@ document.getElementById("facturar").addEventListener("click", function () {
 
 
 document.addEventListener('keydown', (event) => {
-    if (event.altKey) {
+  if (event.altKey) {
     let textQuickNumber = null;
 
     if (event.key === '1') {
@@ -982,13 +982,13 @@ if (facturarSoundSelect && playFacturarButton && volumenFacturarSlider) {
   playFacturarButton.addEventListener('click', () => {
     const soundIndex = parseInt(facturarSoundSelect.value) - 1;
     const soundUrl = sounds[soundIndex];
-    audio = new Audio(soundUrl); 
+    audio = new Audio(soundUrl);
     audio.volume = volumenFacturarSlider.value / 100;
     audio.play();
   });
 
   volumenFacturarSlider.addEventListener('input', () => {
-    if (audio) { 
+    if (audio) {
       audio.volume = volumenFacturarSlider.value / 100;
     }
   });
@@ -1004,7 +1004,7 @@ const finalizarSounds = [
   "https://raw.githubusercontent.com/maxii1996/BaduCalculator-Online/main/Resources/Final3.wav",
 ];
 
-let finalizarAudio; 
+let finalizarAudio;
 
 if (finalizarSoundSelect && playFinalizarButton && volumenFinalizarSlider) {
   playFinalizarButton.addEventListener('click', () => {
@@ -1016,7 +1016,7 @@ if (finalizarSoundSelect && playFinalizarButton && volumenFinalizarSlider) {
   });
 
   volumenFinalizarSlider.addEventListener('input', () => {
-    if (finalizarAudio) { 
+    if (finalizarAudio) {
       finalizarAudio.volume = volumenFinalizarSlider.value / 100;
     }
   });
@@ -1024,47 +1024,47 @@ if (finalizarSoundSelect && playFinalizarButton && volumenFinalizarSlider) {
 
 
 function playFacturarSound() {
-    const facturarSoundSelect = document.getElementById('facturarSound');
-    const playFacturarButton = document.getElementById('playFacturarButton');
-    const volumenFacturarSlider = document.getElementById('volumenFacturar');
+  const facturarSoundSelect = document.getElementById('facturarSound');
+  const playFacturarButton = document.getElementById('playFacturarButton');
+  const volumenFacturarSlider = document.getElementById('volumenFacturar');
 
- const sounds = [
-  "https://raw.githubusercontent.com/maxii1996/BaduCalculator-Online/main/Resources/Factura1.wav",
-  "https://raw.githubusercontent.com/maxii1996/BaduCalculator-Online/main/Resources/Factura2.wav",
-  "https://raw.githubusercontent.com/maxii1996/BaduCalculator-Online/main/Resources/Factura3.wav",
-  "https://raw.githubusercontent.com/maxii1996/BaduCalculator-Online/main/Resources/Factura4.wav",
-  "https://raw.githubusercontent.com/maxii1996/BaduCalculator-Online/main/Resources/Factura5.wav",
-];
+  const sounds = [
+    "https://raw.githubusercontent.com/maxii1996/BaduCalculator-Online/main/Resources/Factura1.wav",
+    "https://raw.githubusercontent.com/maxii1996/BaduCalculator-Online/main/Resources/Factura2.wav",
+    "https://raw.githubusercontent.com/maxii1996/BaduCalculator-Online/main/Resources/Factura3.wav",
+    "https://raw.githubusercontent.com/maxii1996/BaduCalculator-Online/main/Resources/Factura4.wav",
+    "https://raw.githubusercontent.com/maxii1996/BaduCalculator-Online/main/Resources/Factura5.wav",
+  ];
 
 
-    if (facturarSoundSelect && playFacturarButton && volumenFacturarSlider) {
-      const soundIndex = parseInt(facturarSoundSelect.value) - 1;
-      const soundUrl = sounds[soundIndex];
-      const audio = new Audio(soundUrl);
-      audio.volume = volumenFacturarSlider.value / 100;
-      audio.play();
-    }
+  if (facturarSoundSelect && playFacturarButton && volumenFacturarSlider) {
+    const soundIndex = parseInt(facturarSoundSelect.value) - 1;
+    const soundUrl = sounds[soundIndex];
+    const audio = new Audio(soundUrl);
+    audio.volume = volumenFacturarSlider.value / 100;
+    audio.play();
+  }
 }
 
 
 function playSiguienteClienteSound() {
-    const facturarSoundSelect = document.getElementById('facturarSound');
-    const playFacturarButton = document.getElementById('playFacturarButton');
-    const volumenFacturarSlider = document.getElementById('volumenFacturar');
+  const facturarSoundSelect = document.getElementById('facturarSound');
+  const playFacturarButton = document.getElementById('playFacturarButton');
+  const volumenFacturarSlider = document.getElementById('volumenFacturar');
 
-    const sounds = [
-  "https://raw.githubusercontent.com/maxii1996/BaduCalculator-Online/main/Resources/Final1.wav",
-  "https://raw.githubusercontent.com/maxii1996/BaduCalculator-Online/main/Resources/Final2.wav",
-  "https://raw.githubusercontent.com/maxii1996/BaduCalculator-Online/main/Resources/Final3.wav",
-    ];
+  const sounds = [
+    "https://raw.githubusercontent.com/maxii1996/BaduCalculator-Online/main/Resources/Final1.wav",
+    "https://raw.githubusercontent.com/maxii1996/BaduCalculator-Online/main/Resources/Final2.wav",
+    "https://raw.githubusercontent.com/maxii1996/BaduCalculator-Online/main/Resources/Final3.wav",
+  ];
 
-    if (facturarSoundSelect && playFacturarButton && volumenFacturarSlider) {
-      const soundIndex = parseInt(finalizarSoundSelect.value) - 1;
+  if (facturarSoundSelect && playFacturarButton && volumenFacturarSlider) {
+    const soundIndex = parseInt(finalizarSoundSelect.value) - 1;
     const soundUrl = finalizarSounds[soundIndex];
     const audio = new Audio(soundUrl);
     audio.volume = volumenFinalizarSlider.value / 100;
     audio.play();
-    }
+  }
 }
 
 
@@ -1083,10 +1083,10 @@ function loadSavedTexts() {
   quickText2Input.value = localStorage.getItem("quickText2") || quickText2Input.value;
   quickText3Input.value = localStorage.getItem("quickText3") || quickText3Input.value;
 
-document.getElementById("facturarSound").value = localStorage.getItem("facturarSound") || "1";
-document.getElementById("finalizarSound").value = localStorage.getItem("finalizarSound") || "1";
-document.getElementById("volumenFacturar").value = localStorage.getItem("volumenFacturar") || "50";
-document.getElementById("volumenFinalizar").value = localStorage.getItem("volumenFinalizar") || "50";
+  document.getElementById("facturarSound").value = localStorage.getItem("facturarSound") || "1";
+  document.getElementById("finalizarSound").value = localStorage.getItem("finalizarSound") || "1";
+  document.getElementById("volumenFacturar").value = localStorage.getItem("volumenFacturar") || "50";
+  document.getElementById("volumenFinalizar").value = localStorage.getItem("volumenFinalizar") || "50";
 
 }
 
@@ -1101,7 +1101,7 @@ function loadSalesFromLocalStorage() {
   if (savedSalesHistory) {
     tableBody.innerHTML = savedSalesHistory;
   }
-    updateSalesTable();
+  updateSalesTable();
   updatePagination();
 }
 
@@ -1116,18 +1116,18 @@ closeButtons.forEach(button => {
 
 
 function facturarRapido() {
-guardarConfiguracionFacturacionRapida();
+  guardarConfiguracionFacturacionRapida();
 }
 
 document.getElementById('facturacionRapidaBtn').addEventListener('click', () => {
   $('#facturarapida1').modal('show');
-    actualizarFacturacionRapida();
-  cargarConfiguracionFacturacionRapida(); 
+  actualizarFacturacionRapida();
+  cargarConfiguracionFacturacionRapida();
 });
 
 
 function guardarConfiguracionFacturacionRapida() {
-	
+
   const facturacionRapidaInputs = document.querySelectorAll('.facturacion-rapida-cantidad');
   let configuracion = {};
 
@@ -1136,10 +1136,10 @@ function guardarConfiguracionFacturacionRapida() {
     configuracion[nombreProducto] = input.value;
   });
 
-  console.log('Guardando configuración:', configuracion); 
+  console.log('Guardando configuración:', configuracion);
   localStorage.setItem("configuracionFacturacionRapida", JSON.stringify(configuracion));
-  
-  
+
+
   const notificationFast = document.getElementById('NotificationFast');
   notificationFast.classList.remove('d-none');
 
@@ -1153,7 +1153,7 @@ const aplicarBtn = document.querySelector("#facturarapida1 .btn-primary");
 aplicarBtn.addEventListener("click", () => {
   facturarRapido();
   guardarConfiguracionFacturacionRapida();
-    resetearValoresFacturacionComun();
+  resetearValoresFacturacionComun();
 
 });
 
@@ -1172,12 +1172,12 @@ function cargarValoresFacturacionRapida(configuracion) {
 
 
 function cargarConfiguracionFacturacionRapida() {
-   const configuracion = JSON.parse(localStorage.getItem("configuracionFacturacionRapida"));
-  console.log('Cargando configuración:', configuracion); 
+  const configuracion = JSON.parse(localStorage.getItem("configuracionFacturacionRapida"));
+  console.log('Cargando configuración:', configuracion);
 
-if (configuracion) {
+  if (configuracion) {
     cargarValoresFacturacionRapida(configuracion);
-  } 
+  }
 }
 
 
@@ -1203,22 +1203,22 @@ function actualizarFacturacionRapida() {
     formGroup.appendChild(label);
 
     const input = document.createElement('input');
-input.type = 'number';
-input.min = '0';
-input.max = '999999'; 
-input.value = cantidad;
-input.classList.add('form-control', 'facturacion-rapida-cantidad');
-input.setAttribute('data-producto', nombreProducto);
+    input.type = 'number';
+    input.min = '0';
+    input.max = '999999';
+    input.value = cantidad;
+    input.classList.add('form-control', 'facturacion-rapida-cantidad');
+    input.setAttribute('data-producto', nombreProducto);
 
 
-input.addEventListener('change', function() {
-    if (this.value > 999999) {
+    input.addEventListener('change', function () {
+      if (this.value > 999999) {
         this.value = 999999;
         alert('El valor máximo permitido es 999999');
-    }
-});
+      }
+    });
 
-formGroup.appendChild(input);
+    formGroup.appendChild(input);
 
     col.appendChild(formGroup);
     facturacionRapidaProductos.appendChild(col);
@@ -1255,16 +1255,16 @@ document.getElementById('cargarFacturacionRapida').addEventListener('click', () 
   cargarConfiguracionFacturacionRapida();
 });
 
- document.getElementById('cargarFacturacionRapida').addEventListener('click', function() {
-    const button = this;
-    const text = button.querySelector('.original-text');
+document.getElementById('cargarFacturacionRapida').addEventListener('click', function () {
+  const button = this;
+  const text = button.querySelector('.original-text');
 
-    text.textContent = 'Cargado';
+  text.textContent = 'Cargado';
 
-    setTimeout(function() {
-      text.textContent = 'Factura Rápida';
-    }, 1000);
-  });
+  setTimeout(function () {
+    text.textContent = 'Factura Rápida';
+  }, 1000);
+});
 
 
 const facturacionRapidaBtn = document.getElementById('facturacionRapidaBtn');
@@ -1350,7 +1350,7 @@ function updatePagination() {
   const tableBody = document.getElementById("historialVentasTbody");
   const totalPages = Math.ceil(tableBody.children.length / itemsPerPage);
   const pagination = document.getElementById("salesPagination");
-  
+
   pagination.innerHTML = "";
   for (let i = 1; i <= totalPages; i++) {
     const li = document.createElement("li");
@@ -1392,7 +1392,6 @@ function cargarEstadoAutoguardado() {
   }
 }
 
-
 function cargarOrdenTarjetas() {
   const listaProductos = document.getElementById('listaProductos');
   const tarjetasOrdenJson = localStorage.getItem('tarjetasOrden');
@@ -1416,14 +1415,14 @@ function cargarOrdenTarjetas() {
       listaProductos.appendChild(tarjeta);
     });
   }
-  
+
 }
 
 function guardarOrdenTarjetas() {
   const tarjetas = document.querySelectorAll("#listaProductos .producto-card");
   const ordenTarjetas = Array.from(tarjetas).map(tarjeta => tarjeta.dataset.id);
   localStorage.setItem("ordenTarjetas", JSON.stringify(ordenTarjetas));
-  console.log("Guardando orden de tarjetas:", ordenTarjetas); // Agrega esta línea para verificar que se está llamando a la función
+  console.log("Guardando orden de tarjetas:", ordenTarjetas);
 }
 
 
@@ -1475,7 +1474,7 @@ confirmarDeleteAllBtn.addEventListener("click", () => {
   listaProductos.innerHTML = "";
   confirmaDeleteAll.modal("hide");
   guardarProductos();
-cerrarEditarProducto.click();
+  cerrarEditarProducto.click();
   cerrarEditarProductoModal();
 });
 
@@ -1489,7 +1488,7 @@ function cerrarEditarProductoModal() {
 function agregarCategoria(nombre = '', color = '#000000') {
   const categoriaTemplate = `
     <div class="categoria mb-2 d-flex">
-      <input type="text" class="form-control nombreCategoria" value="${nombre}" placeholder="Nueva Categoría">
+      <input type="text" class="form-control nombreCategoria" value="${nombre}" placeholder="Nueva Categoría" maxlength="12">
       <input type="color" class="form-control colorCategoria" value="${color}">
       <!-- Agrega este botón -->
       <button class="btn btn-danger eliminarCategoria ml-2">
@@ -1500,7 +1499,6 @@ function agregarCategoria(nombre = '', color = '#000000') {
 
   const categoriasContainer = document.getElementById('categoriasContainer');
   categoriasContainer.insertAdjacentHTML('beforeend', categoriaTemplate);
-
 
   const eliminarCategoriaBtn = categoriasContainer.querySelector('.categoria:last-child .eliminarCategoria');
   eliminarCategoriaBtn.addEventListener('click', eliminarCategoria);
@@ -1531,42 +1529,74 @@ function guardarCategorias() {
   const categoriasContainer = document.getElementById('categoriasContainer');
   const categorias = Array.from(categoriasContainer.querySelectorAll('.categoria'));
   const categoriasData = categorias.map(categoria => {
-      return {
-          nombre: categoria.querySelector('.nombreCategoria').value,
-          color: categoria.querySelector('.colorCategoria').value
-      };
+    return {
+      nombre: categoria.querySelector('.nombreCategoria').value,
+      color: categoria.querySelector('.colorCategoria').value
+    };
   });
 
   localStorage.setItem('categorias', JSON.stringify(categoriasData));
   cerrarAdministrarCategorias();
-  actualizarCategoriasProductos(); 
+  actualizarCategoriasProductos();
+  cargarCategoriasSelect('categoriaProductoAgregar');
 
   const categoriasNotificacion = document.getElementById('categoriasNotificacion');
   categoriasNotificacion.classList.remove('d-none');
   setTimeout(() => {
     categoriasNotificacion.classList.add('d-none');
   }, 3000);
+
+
 }
 
 function cargarCategorias() {
   const categoriasData = JSON.parse(localStorage.getItem('categorias')) || [];
 
   categoriasData.forEach(categoriaData => {
-      agregarCategoria(categoriaData.nombre, categoriaData.color);
+    agregarCategoria(categoriaData.nombre, categoriaData.color);
   });
 }
 
+let categoriaAEliminar = null;
 
 function eliminarCategoria(event) {
-  const categoria = event.target.closest('.categoria');
-  if (categoria) {
-    categoria.remove();
+  categoriaAEliminar = event.target.closest('.categoria');
+  if (categoriaAEliminar) {
+    abrirConfirmarEliminarCategoriaModal();
   }
 }
 
-function cargarCategoriasSelect() {
-  const categoriasSelect = document.getElementById('categoriaProducto');
+let confirmarEliminarCategoriaModal = null;
+
+function abrirConfirmarEliminarCategoriaModal() {
+  if (!confirmarEliminarCategoriaModal) {
+    confirmarEliminarCategoriaModal = new bootstrap.Modal(document.getElementById('confirmarEliminarCategoriaModal'), {
+      backdrop: 'static',
+      keyboard: false
+    });
+  }
+  confirmarEliminarCategoriaModal.show();
+}
+
+function cerrarConfirmarEliminarCategoriaModal() {
+  if (confirmarEliminarCategoriaModal) {
+    confirmarEliminarCategoriaModal.hide();
+  }
+}
+
+
+
+
+
+function cargarCategoriasSelect(selectElementId) {
+  const categoriasSelect = document.getElementById(selectElementId);
   categoriasSelect.innerHTML = '';
+
+
+  const sinCategoriaOption = document.createElement('option');
+  sinCategoriaOption.value = '';
+  sinCategoriaOption.textContent = 'Sin Categoría';
+  categoriasSelect.appendChild(sinCategoriaOption);
 
   const categorias = JSON.parse(localStorage.getItem('categorias')) || [];
   categorias.forEach(categoria => {
@@ -1576,6 +1606,9 @@ function cargarCategoriasSelect() {
     categoriasSelect.appendChild(option);
   });
 }
+
+
+
 
 function actualizarCategoriaSelect(producto) {
   const categoriaProducto = producto.querySelector('.categoriaProducto').textContent;
@@ -1596,17 +1629,66 @@ function actualizarCategoriasProductos() {
       const categoriaNombre = producto.querySelector('.categoriaNombre');
       categoriaNombre.textContent = categoriaEncontrada.nombre;
       categoriaNombre.style.backgroundColor = categoriaEncontrada.color;
-      categoriaNombre.style.color = 'white'; // Establecer el color del texto de la categoría en blanco
+      categoriaNombre.style.color = 'white';
     }
   });
 }
 
 
+function showStep(index) {
+  const steps = $(".step");
+  steps.css("transform", `translateX(-${index * 100}%)`);
+}
 
+function esProductoDuplicado(nombreProducto) {
+  const listaProductos = document.getElementById('listaProductos');
+  const productos = listaProductos.querySelectorAll('.nombreProducto');
+  return Array.from(productos).some(producto => producto.textContent === nombreProducto);
+}
 
+$(document).ready(function () {
+  $("#next1").click(function () {
+    const nuevoNombreProducto = $("#nombreProducto").val().trim();
+    const errorMsg1 = $("#errorMsg1");
+    errorMsg1.hide();
 
+    if (nuevoNombreProducto.length < 2) {
+      errorMsg1.text("El nombre del producto debe tener al menos 2 caracteres.");
+      errorMsg1.show();
+      return;
+    }
+
+    if (esProductoDuplicado(nuevoNombreProducto)) {
+      errorMsg1.text("El producto ingresado ya existe.");
+      errorMsg1.show();
+      return;
+    }
+
+    showStep(1);
+  });
+
+  $("#back1").click(function () {
+    showStep(0);
+  });
+
+  $("#next2").click(function () {
+    const nuevoPrecio = parseFloat($("#precio").val());
+    const errorMsg2 = $("#errorMsg2");
+    errorMsg2.hide();
+
+    if (isNaN(nuevoPrecio) || nuevoPrecio < 1) {
+      errorMsg2.text("No se pueden agregar productos con precio 0 o menor.");
+      errorMsg2.show();
+      return;
+    }
+    showStep(2);
+  });
+
+  $("#back2").click(function () {
+    showStep(1);
+  });
+});
 
 let administrarCategoriasModal;
-
 
 init();
