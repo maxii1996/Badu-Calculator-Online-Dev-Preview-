@@ -1350,31 +1350,33 @@ function cargarEstadoAutoguardado() {
   }
 }
 
+let allProductCards = [];
+
 function cargarOrdenTarjetas() {
   const listaProductos = document.getElementById('listaProductos');
   const tarjetasOrdenJson = localStorage.getItem('tarjetasOrden');
 
   if (tarjetasOrdenJson) {
     const tarjetasOrden = JSON.parse(tarjetasOrdenJson);
-    const tarjetasOrdenadas = [];
 
-    tarjetasOrden.forEach((nombreProducto) => {
-      const tarjeta = Array.from(listaProductos.children).find((producto) => {
+    allProductCards = Array.from(listaProductos.children);
+
+    const tarjetasOrdenadas = tarjetasOrden.map((nombreProducto) => {
+      return allProductCards.find((producto) => {
         return producto.querySelector('.nombreProducto').textContent === nombreProducto;
       });
+    }).filter(tarjeta => tarjeta);
 
-      if (tarjeta) {
-        tarjetasOrdenadas.push(tarjeta);
-      }
-    });
-
-    listaProductos.innerHTML = '';
     tarjetasOrdenadas.forEach((tarjeta) => {
       listaProductos.appendChild(tarjeta);
     });
+  } else {
+    allProductCards = Array.from(listaProductos.children);
   }
-
 }
+
+
+
 
 function guardarOrdenTarjetas() {
   const tarjetas = document.querySelectorAll("#listaProductos .producto-card");
@@ -1475,7 +1477,6 @@ function abrirAdministrarCategorias() {
     });
   }
   
-  // Llama a la función cargarCategorias() antes de mostrar el modal
   cargarCategorias();
   administrarCategoriasModal.show();
 }
@@ -1512,7 +1513,7 @@ function guardarCategorias() {
 
 function cargarCategorias() {
   const categoriasContainer = document.getElementById('categoriasContainer');
-  categoriasContainer.innerHTML = ''; // Vacía el contenedor de categorías antes de agregar las nuevas categorías
+  categoriasContainer.innerHTML = '';
   
   const categoriasData = JSON.parse(localStorage.getItem('categorias')) || [];
 
@@ -1692,6 +1693,23 @@ function actualizarTextoProductosAFacturar(menuDesplegado, hayProductos) {
     productosAFacturar.style.display = 'none';
   }
 }
+
+document.getElementById('filtrarCategorias').addEventListener('change', filterAndReorderProducts);
+
+function filterAndReorderProducts() {
+  const selectedCategory = document.getElementById('filtrarCategorias').value;
+  const listaProductos = document.getElementById('listaProductos');
+
+  allProductCards.forEach(card => {
+    const productCategory = card.querySelector('.categoriaProducto').textContent;
+    if (selectedCategory === '' || productCategory === selectedCategory) {
+      card.style.display = 'block';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
 
 
 
