@@ -539,34 +539,6 @@ h1 {
 
 }
 
-#facturacionRapidaBtn {
-  height: 30%;
-  width: 55%;
-  margin-right: 12rem;
-  padding: 2.2rem;
-  padding-left: 1.3rem;
-  padding-right: 1.4rem;
-  border-radius: 0.5rem;
-  font-size: 1.3rem;
-  line-height: 1.2rem;
-  display: flex;
-  align-items: left;
-  justify-content: left;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  transition: all 0.2s ease-in-out;
-}
-
-#facturacionRapidaBtn i {
-  margin-right: 0.3rem;
-}
-
-#facturacionRapidaBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  background-color: #6799e9;
-}
 
 .cta {
 
@@ -1002,3 +974,61 @@ h1 {
   padding: 1rem;
   transition: all 0.3s ease-in-out;
 }
+
+
+.modal-fullscreen {
+  min-width: 45%;
+  width: fit-content;
+  padding: 1rem;
+  padding-top: 1;
+  padding-bottom: 1;
+  border-radius: 7px;
+
+}
+
+.modal-dialog-centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1;
+  border-radius: 7px;
+
+ 
+
+}
+
+
+
+.facturacion-rapida-modal{
+  border-radius: 7px;
+
+}
+
+
+#minitablero-presets {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 8px;
+  width: 9rem;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+#minitablero-presets .btn {
+  width: 100%;
+  text-align: center;
+  padding: 5px;
+}
+
+@media (max-width: 576px) {
+  #minitablero-presets {
+    max-width: 100%;
+  }
+}
+
+
+
+.d-flex {
+  display: flex;
+}
+
