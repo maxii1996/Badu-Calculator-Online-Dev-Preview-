@@ -1163,13 +1163,20 @@ function guardarEstadoAutoguardado() {
 }
 
 function cargarEstadoAutoguardado() {
-  const autoguardadoActivo = localStorage.getItem('autoguardadoActivo');
+ 
 
-  if (autoguardadoActivo === 'true') {
-    autoguardarProductos.checked = true;
-  } else {
-    autoguardarProductos.checked = false;
+  try {
+    const autoguardadoActivo = localStorage.getItem('autoguardadoActivo');
+    if (autoguardadoActivo === 'true') {
+      autoguardarProductos.checked = true;
+    } else {
+      autoguardarProductos.checked = false;
+    }
+  } catch (error) {
+    console.log(`Error al intentar leer el valor de autoguardadoActivo en localStorage: ${error}`);
   }
+
+
 }
 
 let allProductCards = [];
