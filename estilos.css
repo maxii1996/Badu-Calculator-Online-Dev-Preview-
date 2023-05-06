@@ -178,16 +178,7 @@ button {
   background-color: rgba(0, 0, 0, 0.4);
 }
 
-.modal-content {
-  background-color: #fefefe;
-  margin: 15% auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 30%;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+
 
 .modal input {
   width: 100%;
@@ -198,7 +189,7 @@ button {
   border: none;
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
   padding: 1rem;
-  width: 75%;
+  width: 90%;
   font-size: 0.9rem;
   margin-bottom: 3rem;
   margin-top: 1rem;
@@ -416,12 +407,12 @@ footer {
 
 @media (min-width: 1080px) {
   .d-flex.mt-3 {
-    gap: 1rem;
-    padding: 9rem;
-    padding-left: 3rem;
-    padding-right: 3rem;
-    width: 60%;
-    max-width: 60%;
+    gap: 0.4rem;
+    padding: 10rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    width: 75%;
+    max-width: 75%;
     height: 27%;
     padding-bottom: 2.4rem;
     padding-top: 2.4rem;
@@ -429,12 +420,32 @@ footer {
   }
 }
 
+@media (min-width: 1080px) {
+  .d-flex.mt-2 {
+
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    padding-left: 12rem;
+    padding-right: 12rem;
+    width: 100%;
+    max-width: 100%;
+    height: 34%;
+    max-height: 34%;
+  }
+}
+
+
+
 #modal-content {
   background-color: #f5f5f5;
-  padding: 1rem;
+  padding: 5rem;
+  padding-left: 7em;
+  padding-right: 7em;
   max-width: 100%;
   height: 100%;
   max-height: 100%;
+
   width: 100%;
   max-height: 100%;
   overflow-y: auto;
@@ -560,15 +571,14 @@ h1 {
   align-items: center;
   background: #3a2471;
   color: #fff;
-  text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.85);
   width: 11rem;
   height: 2.7rem;
-  border: 0;
+  border: 2;
   font-size: 15px;
   border-radius: 4px;
   font-family: Arial, sans-serif;
   font-weight: 500;
-  transition: 1.3s;
+  transition: 0.25s;
   overflow: hidden;
   padding: 0 10px;
   justify-content: center;
@@ -614,13 +624,13 @@ h1 {
 .custom-btn:hover:before {
   transform: translateX(300px) skewX(-15deg);
   opacity: 0.3;
-  transition: .7s;
+  transition: .3s;
 }
 
 .custom-btn:hover:after {
   transform: translateX(300px) skewX(-15deg);
   opacity: 1;
-  transition: .7s;
+  transition: .3s;
 
 }
 
@@ -927,14 +937,18 @@ h1 {
   border: none;
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.051);
   padding: 1.4rem;
-  width: 120%;
+  width: 95%;
+  margin-left: 20%;
+  margin-right: 18%;
   font-size: 0.8rem;
   transition: all 0.3s ease-in-out;
 }
 
 #buscarProducto:focus {
-  width: 155%;
-  margin-left: -35%;
+  width: 110%;
+  max-width: 110%;
+  margin-left: 0%;
+  margin-right: 55%;
   border-radius: 27px;
   
 }
@@ -945,11 +959,13 @@ h1 {
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.051);
   background-color: #fff;
   font-size: 0.72rem;
-  width: 100%;
+  width: 110%;
+  max-width:110%;
   font-weight: 600;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #3f3f3fe2;
   appearance: none;
+margin-right: 0;
   -webkit-appearance: none;
   -moz-appearance: none;
   padding: 1rem;
@@ -963,8 +979,9 @@ h1 {
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.051);
   background-color: #fff;
   font-size: 0.72rem;
-  width: 130%;
-  margin-left: -8%;
+  width: 100%;
+  max-width:auto;
+  left: auto;
   font-weight: 600;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #3f3f3fe2;
@@ -1012,6 +1029,8 @@ h1 {
   width: 9rem;
   max-width: 300px;
   margin: 0 auto;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
 }
 
 #minitablero-presets .btn {
@@ -1026,9 +1045,121 @@ h1 {
   }
 }
 
-
-
 .d-flex {
   display: flex;
+}
+
+.explicacion {
+  font-size: 11px;
+  font-weight: 400;
+  margin: 50px 0px;
+  margin-bottom: 49px;
+}
+
+#menu-container {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease-in-out;
+  background-color: #ffffff;
+  border-radius: 10px 10px 10px 10px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+#minitablero-presets {
+  margin: 0 auto;
+  max-width: 300px;
+}
+
+
+
+#menu-container.show #minitablero-presets {
+  opacity: 1;
+  transition-delay: 0.2s;
+}
+
+
+#menu-container.show {
+  max-height: calc(2 * (18px + 8px + (2 * 30px) + 2 * 5px)); /* Altura del minitablero + margen superior e inferior + padding */
+  width: fit-content;
+  max-width: fit-content;
+  padding: 25px;
+  
+}
+
+
+
+#toggleFactura {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  background: #fbfbfbf8;
+  color: #232323dc;
+  width: 9rem;
+  height: 2.5rem;
+
+  font-size: 0.8rem;
+
+  font-weight: 600;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  transition: 0.35s;
+  overflow: hidden;
+  padding: 0 8px;
+  margin-right: -0.5rem;
+  margin-top: -2px;
+  justify-content: center;
+
+  border-radius: 17px;
+  border: none;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.051);
+ 
+
+ 
+
+  transition: all 0.3s ease-in-out;
+
+
+}
+
+#toggleFactura:focus {
+  outline: 0;
+  
+}
+
+#toggleFactura:before {
+  content: '';
+  display: block;
+  position: absolute;
+  background: rgba(255, 255, 255, 0.5);
+  width: 10rem;
+  height: 100%;
+  left: 0;
+  top: 0;
+  opacity: .5;
+  transform: translateX(-100px)  skewX(-15deg);
+}
+
+#toggleFactura:after {
+  content: '';
+  display: block;
+  position: absolute;
+  background: rgba(255, 255, 255, 0.2);
+  width: 30px;
+  margin-right: 5rem;
+  margin-top: 16rem;
+  height: 100%;
+  left: 30px;
+  top: 0;
+  opacity: 0;
+  transform: translateX(-100px) skewX(-15deg);
+}
+
+#toggleFactura:hover {
+  background: #ffffff;
+  color: rgb(0, 0, 0);
+  
+  cursor: pointer;
 }
 

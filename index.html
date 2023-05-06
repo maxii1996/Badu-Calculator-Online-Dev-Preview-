@@ -107,24 +107,14 @@
 
       
 
-      <div id="minitablero-presets" class="d-grid gap-2">
-        <button type="button" class="btn btn-sm btn-outline-primary" data-preset-index="0">1</button>
-        <button type="button" class="btn btn-sm btn-outline-primary" data-preset-index="1">2</button>
-        <button type="button" class="btn btn-sm btn-outline-primary" data-preset-index="2">3</button>
-        <button type="button" class="btn btn-sm btn-outline-primary" data-preset-index="3">4</button>
-        <button type="button" class="btn btn-sm btn-outline-primary" data-preset-index="4">5</button>
-        <button type="button" class="btn btn-sm btn-outline-primary" data-preset-index="5">6</button>
-        <button type="button" class="btn btn-sm btn-outline-primary" data-preset-index="6">7</button>
-        <button type="button" class="btn btn-sm btn-outline-primary" data-preset-index="7">8</button>
-        <button type="button" class="btn btn-sm btn-outline-primary" data-preset-index="8">9</button>
-      </div>
+      
       
 
 
       <div id="modal-container">
         <div id="modal-content">
           <hr>
-          <h2>Ajustes generales</h2>
+          <h2>Menú de Ajustes</h2>
           <div class="d-flex mt-3">
 
             <button id="save-btn" class="btn btn-success ventana-button">
@@ -134,13 +124,18 @@
               <i class="fas fa-times"></i> Cancelar
             </button>
             <button id="exportarConfig" class="btn btn-primary ventana-button">
-              <i class="fas fa-file-export"></i> Exportar configuración
+              <i class="fas fa-file-export"></i> Exportar ajustes
             </button>
             <button id="importarConfig" class="btn btn-secondary ventana-button">
-              <i class="fas fa-file-import"></i> Importar configuración
+              <i class="fas fa-file-import"></i> Importar ajustes
             </button>
             <input type="file" id="archivoConfig" accept=".json" style="display: none;">
           </div>
+
+          <button id="borrar-datos" class="btn btn-outline-warning btn-sm">
+            <i class="fas fa-trash"></i> Eliminar datos locales
+          </button>
+          
 
           <div class="d-flex mt-3">
 
@@ -212,6 +207,15 @@
             <input type="text" id="final-text-input" value=">> TOTAL A PAGAR: " class="custom-input">
             <button id="reset-final-text-btn" class="btn btn-secondary">Restablecer</button>
           </div>
+
+
+
+         <br>
+      
+         <span><i class="fas fa-question"></i> Para utilizar el sistema de texto rápido, presiona las teclas ALT + 1, ALT + 2, o ALT + 3 respectivamente para copiar el texto personalizado en el portapapeles.</span>            <br>
+
+          
+
           <div class="custom-input-container">
             <label class="custom-input-label" for="quick-text-1-input">Texto Rápido 1:</label>
             <input type="text" id="quick-text-1-input" value="" class="custom-input">
@@ -230,6 +234,14 @@
           <hr>
 
           <h4 style="text-align: left;">Configuración de Sonidos:</h4>
+          
+        
+      
+          <span>Aquí realizarás ajustes sobre el Sonido de la aplicación.</span>
+      
+          <br>
+          <hr>
+
           <div>
 
             <style>
@@ -298,6 +310,8 @@
           Importar Productos
         </button>
 
+        
+
       </div>
     </div>
   </nav>
@@ -310,9 +324,12 @@
         <input type="file" id="archivoImportar" accept=".json" style="display: none;">
         <div class="col-md-6">
 
-          <button id="toggleAgregarProducto" class="btn btn-outline-secondary btn-lg">
+          <button id="toggleAgregarProducto" class="btn btn-outline-secondary btn-lg mx-2">
             <i class="fas fa-plus"></i> Agregar Producto
           </button>
+       
+          
+
 
           <div id="notificacionContenedor" class="mt-1" style="width: 95%;"></div>
           <br>
@@ -368,6 +385,8 @@
                     Producto</button>
 
                 </div>
+
+                
               </div>
 
 
@@ -396,8 +415,28 @@
                   <option value="">&#xF0B0; Filtrar por categoría</option>
                 </select>
               </div>
+              
+
+          
+
             </div>
+
+            <button type="button" class="btn btn-outline-secondary btn-lg custom-btn" id="toggleFactura">
+              <div class="text-container">
+                <span class="original-text">Factura Rápida</span>
+                <i class="fas fa-bolt"></i>
+              </div>
+            </button>
+            <div id="menu-container">
+              <div id="minitablero-presets" class="d-grid gap-2"></div>
+            </div>
+            
+            
           </div>
+
+
+          
+
         </div>
 
 
@@ -413,9 +452,14 @@
             <i class="fas fa-user-plus"></i> Siguiente Cliente
           </button>
 
-          <div id="listaProductos" class="mt-2"></div>
+          
 
+          <div id="listaProductos" class="mt-2"></div>
         </div>
+
+        
+
+        
       </div>
     </div>
     <br>
@@ -631,13 +675,43 @@
     </div>
   </div>
 
+ 
+
+<div class="modal fade" id="borrar-datos-modal" tabindex="-1" role="dialog" aria-labelledby="borrar-datos-modal-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="borrar-datos-modal-label">Confirmación de borrado de datos</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>¿Estás seguro que quieres borrar todos los datos almacenados y restablecer los ajustes por defecto?</p>
+        <br>
+        <p><strong>Esta acción es irreversible, deberás volver a cargar la información.</strong></p>
+        <br>
+        <p>Realizar esta acción solo si el sistema no está funcionando adecuadamente.</p>
+        <hr>
+        
+        <p><strong>Mantén el boton de "Borrar datos" para confirmar.</strong></p>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button id="confirmar-borrado" type="button" class="btn btn-danger">Borrar datos</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
   <div id="facturacion-rapida-modal" class="modal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-fullscreen">
       <div class="modal-content">
         <div class="modal-header">
           <div class="d-flex justify-content-end">
-            <h5 class="modal-title">Facturación Rápida</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -653,7 +727,17 @@
                     <button type="button" class="btn btn-lg btn-outline-primary" data-dismiss="modal">Cerrar Menú</button>
                     <br>
                     <hr>
-                    <h6>Selecciona una opción: </h6>
+                 
+                    <br>
+                    <div class="fondo">
+                      <i class="fas fa-question"></i> <h5> Sabías que...</h5>
+                      <span class="explicacion">  Si tocas clic derecho en el botón de cargar factura rápida, editarás directamente esa página.</span>
+                      <br>
+                      <br>
+                      
+                    </div>
+                   
+                    <h6>Elige que Factura Rápida editarás: </h6>
                     <br>
                   </center>
                   <div class="nav flex-column nav-pills d-flex" id="facturacion-rapida-tab" role="tablist" style="overflow-y: auto !important; flex-grow: 1; max-height: auto; flex-direction: column; flex-wrap: nowrap;">
