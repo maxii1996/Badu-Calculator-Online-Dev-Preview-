@@ -21,9 +21,21 @@ document.getElementById('abrir-facturacion-rapida').addEventListener('click', ()
   if (hayProductosEnLista()) {
     $('#facturacion-rapida-modal').modal('show');
   } else {
-    alert("Primero agrega productos para utilizar esta función");
+    // Muestra el modal personalizado en lugar del alert
+    $('#errorModal').modal('show');
   }
 });
+
+
+// Agregamos un evento que se activará cuando se muestre el modal
+$('#facturacion-rapida-modal').on('shown.bs.modal', function() {
+  // Encuentra la primera pestaña y actívala
+  const firstTabBtn = document.querySelector("#facturacion-rapida-tab .facturacion-rapida-tab-btn:first-child");
+  if (firstTabBtn) {
+    firstTabBtn.click();
+  }
+});
+
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -50,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
     forcePlaceholderSize: true,
     stop: () => {
       guardarOrdenTarjetas();
-      guardarProductos();
+      guardarProductosSinConfirmacion()
     }
   });
 
@@ -112,7 +124,7 @@ function agregarProducto() {
     mostrarNotificacion('Producto agregado correctamente', 'success', '');
 
     if (autoguardarProductos.checked) {
-      guardarProductos();
+      guardarProductosSinConfirmacion()
     }
 
     showStep(0);
@@ -200,7 +212,7 @@ function editarProducto(event) {
     if (nuevaCategoriaProducto) {
       producto.querySelector('.categoriaProducto').textContent = nuevaCategoriaProducto;
     }
-    guardarProductos();
+    guardarProductosSinConfirmacion()
     editarProductoModal.hide();
   };
 
@@ -240,7 +252,7 @@ function eliminarProductoConfirmado(producto, editarProductoModal) {
   mostrarNotificacion('Producto eliminado correctamente', 'success');
   mostrarOcultarBotonFacturar();
   cerrarEditarProductoModal();
-  guardarProductos();
+  guardarProductosSinConfirmacion()
   cargarProductos();
 }
 
@@ -312,7 +324,6 @@ function desasignarClickEventAProductos() {
   });
 }
 
-
 function actualizarPrecio(precioElement, nuevoPrecio) {
   precioElement.textContent = '$' + nuevoPrecio.toFixed(2);
 }
@@ -353,16 +364,25 @@ function facturar() {
   } else {
     facturacionDiv.style.backgroundColor = '#fafafa';
   }
+
+  // Añadir esta línea para mover la ventana al inicio de la página
+  window.scrollTo(0, 0);
 }
 
+
 document.getElementById('cargarProductos').addEventListener('click', cargarProductos);
-document.getElementById('guardarProductos').addEventListener('click', guardarProductos);
+document.getElementById('guardarProductos').addEventListener('click', guardarProductosConConfirmacion);
 document.getElementById('exportarProductos').addEventListener('click', exportarProductos);
 document.getElementById('importarProductos').addEventListener('click', () => document.getElementById('archivoImportar').click());
 document.getElementById('archivoImportar').addEventListener('change', importarProductos);
 
-function guardarProductos() {
+function guardarProductosSinConfirmacion() {
   const listaProductos = document.getElementById('listaProductos');
+
+  if (listaProductos.children.length === 0) {
+    return;
+  }
+
   const productos = Array.from(listaProductos.children).map(li => {
     const nombreProducto = li.querySelector('.nombreProducto');
     const precio = li.querySelector('.precio');
@@ -379,8 +399,32 @@ function guardarProductos() {
 
   const productosJson = JSON.stringify(productos);
   localStorage.setItem('productos', productosJson);
-  showNotification('Los cambios se han guardado y aplicado correctamente', 3000, 'success', 'fa fa-check');
 }
+
+function guardarProductosConConfirmacion() {
+  const listaProductos = document.getElementById('listaProductos');
+
+  if (listaProductos.children.length === 0) {
+    alert('No hay productos en la lista para guardar.');
+    return;
+  }
+
+  const ConfirmaGuardar = new bootstrap.Modal(document.getElementById('ConfirmaGuardar'), {
+    backdrop: 'static',
+    keyboard: false
+  });
+
+  const confirmarGuardar = document.getElementById('confirmarGuardar');
+
+  confirmarGuardar.addEventListener('click', () => {
+    guardarProductosSinConfirmacion();
+    showNotification('Los cambios se han guardado y aplicado correctamente', 3000, 'success', 'fa fa-check');
+    ConfirmaGuardar.hide();
+  });
+
+  ConfirmaGuardar.show();
+}
+
 
 
 function cargarProductos() {
@@ -479,6 +523,13 @@ function obtenerColorCategoria(categoria) {
 
 function exportarProductos() {
   const listaProductos = document.getElementById('listaProductos');
+  
+  if (listaProductos.children.length === 0) {
+    // Muestra una notificación o alerta aquí para informar al usuario que no hay productos en la lista
+    alert('No hay productos en la lista para exportar.');
+    return;
+  }
+
   const productos = Array.from(listaProductos.children).map(li => {
     const nombreProducto = li.querySelector('.nombreProducto').textContent;
     const precio = parseFloat(li.querySelector('.precio').textContent.substring(1));
@@ -486,40 +537,57 @@ function exportarProductos() {
     return { nombreProducto, precio, categoria: categoriaProducto };
   });
 
-  const productosJson = JSON.stringify(productos);
-  const blob = new Blob([productosJson], { type: 'application/json' });
+  const categoriasData = JSON.parse(localStorage.getItem('categorias')) || [];
+
+  const dataExport = {
+    productos: productos,
+    categorias: categoriasData
+  };
+
+  const dataJson = JSON.stringify(dataExport);
+  const blob = new Blob([dataJson], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = 'productos.json';
+  link.download = 'productos_categorias.json';
   link.click();
   URL.revokeObjectURL(url);
-  showNotification('Productos exportados en un archivo descargable');
+  showNotification('Productos y categorías exportados en un archivo descargable');
 }
+
 
 function importarProductos(event) {
   const archivo = event.target.files[0];
-  const reader = new FileReader();
+  const listaProductos = document.getElementById('listaProductos');
 
-  reader.onload = function (e) {
-    const productos = JSON.parse(e.target.result);
-    const listaProductos = document.getElementById('listaProductos');
-    listaProductos.innerHTML = '';
-    productos.forEach(producto => {
-      document.getElementById('nombreProducto').value = producto.nombreProducto;
-      document.getElementById('precio').value = producto.precio;
-      document.getElementById('categoriaProducto').value = producto.categoria;
-      agregarProducto();
+  if (listaProductos.children.length > 0) {
+    const ConfirmaImportar = new bootstrap.Modal(document.getElementById('ConfirmaImportar'), {
+      backdrop: 'static',
+      keyboard: false
     });
 
-    showNotification('Productos importados correctamente');
-  };
-  reader.readAsText(archivo);
+    const confirmarImportar = document.getElementById('confirmarImportar');
+
+    confirmarImportar.addEventListener('click', () => {
+      ConfirmaImportar.hide();
+      leerArchivo(archivo);
+    });
+
+    ConfirmaImportar.show();
+  } else {
+    leerArchivo(archivo);
+  }
 }
+
+
+
+
 
 const botonToggleAgregarProducto = document.getElementById('toggleAgregarProducto');
 const contenidoFormularioAgregarProducto = document.querySelector('.contenidoFormulario');
 const tarjetasProducto = document.querySelectorAll('.producto-card');
+const botonToggleFactura = document.getElementById('toggleFactura'); 
+
 
 botonToggleAgregarProducto.addEventListener('click', () => {
   contenidoFormularioAgregarProducto.classList.toggle('mostrar');
@@ -533,6 +601,8 @@ botonToggleAgregarProducto.addEventListener('click', () => {
     const seccionFacturacion = document.querySelector('.facturacion');
     document.querySelectorAll('.producto-card').forEach(tarjeta => tarjeta.style.backgroundColor = '#b4bbc817');
     botonToggleAgregarProducto.classList.add('toggle-active');
+    menuContainer.style.display = 'none';
+
     const buscarProducto = document.getElementById('buscarProducto');
     const productosAFacturar = document.getElementById('productosAFacturar');
     const botonFacturar = document.getElementById('facturar');
@@ -547,8 +617,13 @@ botonToggleAgregarProducto.addEventListener('click', () => {
     productosAFacturar.style.display = 'none';
     botonFacturar.style.display = 'none';
     botonSiguienteCliente.style.display = 'none';
+
+    botonToggleFactura.style.display = 'none'; 
   } else {
     mostrarOcultarBotonFacturar();
+    menuContainer.style.display = 'block';
+
+    botonToggleFactura.style.display = 'block'; 
   }
 });
 
@@ -583,6 +658,7 @@ function mostrarOcultarBotonFacturar() {
   }
 }
 
+
 function showNotification(message, duration = 3000) {
   const notification = document.getElementById('notification');
   const notificationContent = document.getElementById('notification-content');
@@ -616,14 +692,27 @@ const buscarProducto = document.getElementById('buscarProducto');
 const listaProductos = document.getElementById('listaProductos');
 buscarProducto.addEventListener('input', () => {
   const valorBusqueda = buscarProducto.value.trim().toLowerCase();
+  let visibleCount = 0;
   listaProductos.childNodes.forEach((producto) => {
     if (producto.querySelector('.nombreProducto').textContent.trim().toLowerCase().includes(valorBusqueda)) {
       producto.style.display = 'block';
+      visibleCount++;
     } else {
       producto.style.display = 'none';
     }
   });
+
+  // Mostrar u ocultar el mensaje "Sin resultados"
+  const noResultsMessage = document.getElementById('noResultsMessage');
+  const noResultsText = noResultsMessage.querySelector('.no-results-text');
+  if (visibleCount === 0) {
+    noResultsText.textContent = `Sin resultados para "${buscarProducto.value.trim()}"`;
+    noResultsMessage.style.display = 'block';
+  } else {
+    noResultsMessage.style.display = 'none';
+  }
 });
+
 
 
 function siguienteCliente() {
@@ -1219,7 +1308,7 @@ autoguardarProductos.addEventListener('change', () => {
   guardarEstadoAutoguardado();
 
   if (autoguardarProductos.checked) {
-    guardarProductos();
+    guardarProductosSinConfirmacion()
   }
 });
 
@@ -1328,7 +1417,7 @@ confirmarDeleteAllBtn.addEventListener("click", () => {
   const listaProductos = document.getElementById("listaProductos");
   listaProductos.innerHTML = "";
   confirmaDeleteAll.modal("hide");
-  guardarProductos();
+  guardarProductosSinConfirmacion()
   cerrarEditarProducto.click();
   cerrarEditarProductoModal();
 });
@@ -1642,7 +1731,7 @@ function crearBotonesFacturacionRapida() {
     facturacionRapidaTab.appendChild(listItem);
 
     const tabButton = document.createElement('a');
-    tabButton.classList.add('nav-link', 'facturacion-rapida-tab', 'facturacion-rapida-tab-btn'); // Añade la clase 'facturacion-rapida-tab-btn'
+    tabButton.classList.add('nav-link', 'facturacion-rapida-tab', 'facturacion-rapida-tab-btn');
     tabButton.id = `facturacion-rapida-${index + 1}-tab`;
     tabButton.textContent = `Factura Rápida ${index + 1}`;
     tabButton.setAttribute('href', `#facturacion-rapida-${index + 1}`);
@@ -1664,9 +1753,11 @@ function crearBotonesFacturacionRapida() {
     resetButton.classList.add('fas', 'fa-eraser', 'ml-2');
     listItem.appendChild(resetButton);
     
-    resetButton.addEventListener('click', () => {
-      const confirmation = confirm('¿Estás seguro de que deseas restablecer los valores de esta página?');
-      if (confirmation) {
+    resetButton.addEventListener('click', async () => {
+      $('#confirmacionRestablecerFacturaRapida').modal('show');
+      
+      const confirmarRestablecer = document.getElementById('confirmarRestablecer');
+      confirmarRestablecer.addEventListener('click', () => {
         const activePreset = document.querySelector(`#facturacion-rapida-${index + 1}`);
         if (activePreset) {
           activePreset.querySelectorAll('input[type="number"]').forEach((input) => {
@@ -1674,11 +1765,11 @@ function crearBotonesFacturacionRapida() {
           });
           presets[index].values = Array(CANTIDAD_PRODUCTOS).fill(0);
           guardarPresets();
+          $('#confirmacionRestablecerFacturaRapida').modal('hide');
         }
-      }
+      });
     });
     
-
     tabButton.addEventListener('click', () => {
       const pageNumber = index + 1;
 });
@@ -1706,6 +1797,20 @@ function actualizarMinitableroPresets() {
   const minitableroPresets = document.getElementById("minitablero-presets");
   minitableroPresets.innerHTML = '';
 
+  let textoPersonalizar = document.getElementById('textoPersonalizar');
+  if (!textoPersonalizar) {
+    textoPersonalizar = document.createElement('button');
+    textoPersonalizar.id = 'textoPersonalizar';
+    textoPersonalizar.classList.add('btn', 'btn-sm', 'btn-outline-secondary');
+    textoPersonalizar.innerHTML = 'Personalizar<i class="fas fa-edit ml-2"></i>';
+    minitableroPresets.parentElement.appendChild(textoPersonalizar);
+
+    textoPersonalizar.addEventListener('click', () => {
+      abrirFacturacionRapida(0); 
+    });
+  }
+
+
   presets.forEach((preset, index) => {
     if (preset.enabled) {
       const presetButton = document.createElement('button');
@@ -1725,6 +1830,8 @@ function actualizarMinitableroPresets() {
       });
     }
   });
+
+  actualizarTextoPersonalizar();
 }
 
 function generarFacturacionRapida(presetIndex) {
@@ -1745,58 +1852,44 @@ function generarFacturacionRapida(presetIndex) {
   pageTitle.style.fontFamily = "Segoe UI, sans-serif"; 
   pageTitle.style.fontWeight = "400";
   pageTitle.style.fontSize = "1.4rem";
-  
   const icon = document.createElement('span');
   icon.className = 'fas fa-edit';
   icon.style.marginRight = "7px";
-  
   icon.style.color = "#333";
   icon.style.padding = "2px";
   icon.style.borderRadius = "50%";
   icon.style.background = "#fff";
   
   pageTitle.insertBefore(icon, pageTitle.firstChild);
-  
   tabPane.appendChild(pageTitle);
-  
 
   const table = document.createElement('table');
   table.classList.add('table');
   tabPane.appendChild(table);
-
   const thead = document.createElement('thead');
   table.appendChild(thead);
-
   const trHeader = document.createElement('tr');
   thead.appendChild(trHeader);
-
   const thProducto = document.createElement('th');
   thProducto.textContent = 'Lista de Productos';
   trHeader.appendChild(thProducto);
-
   const thCantidad = document.createElement('th');
   thCantidad.textContent = 'Cantidad';
   trHeader.appendChild(thCantidad);
-
   const tbody = document.createElement('tbody');
   table.appendChild(tbody);
-
   const productos = document.querySelectorAll('.producto-card');
-
   productos.forEach((producto, index) => {
     const productoId = producto.getAttribute('data-id');
     const nombreProducto = producto.querySelector('.nombreProducto').textContent;
     const inputCantidad = producto.querySelector(`#cantidad-${productoId}`);
-
     const tr = document.createElement('tr');
     tbody.appendChild(tr);
 
     const tdProducto = document.createElement('td');
     tdProducto.textContent = nombreProducto;
     tr.appendChild(tdProducto);
-
     const tdCantidad = document.createElement('td');
-
     const cantidadInput = document.createElement('input');
     cantidadInput.type = 'number';
     cantidadInput.id = `preset-cantidad-${productoId}-${presetIndex}`;
@@ -1805,7 +1898,6 @@ function generarFacturacionRapida(presetIndex) {
     cantidadInput.max = 999999;
     cantidadInput.style.width = '5rem';
     cantidadInput.value = presets[presetIndex].values[index];
-
     cantidadInput.addEventListener('input', () => {
       const cantidad = parseInt(cantidadInput.value);
       presets[presetIndex].values[index] = cantidad;
@@ -1822,20 +1914,15 @@ function generarFacturacionRapida(presetIndex) {
   const colConfiguracion = document.createElement('div');
   colConfiguracion.classList.add('col-md-2');
   row.appendChild(colConfiguracion);
-
   const colProductos = document.createElement('div');
   colProductos.classList.add('col-md-10');
   row.appendChild(colProductos);
-
   const tableContainer = document.createElement('div');
   tableContainer.classList.add('table-responsive');
   colProductos.appendChild(tableContainer);
   tableContainer.appendChild(table);
 
 }
-
-
-
 
 function guardarPresets() {
   localStorage.setItem(PRESETS_KEY, JSON.stringify(presets));
@@ -1872,7 +1959,6 @@ function cargarPresets() {
 
 function cargarPresetEnFacturacion(presetIndex) {
   const productos = document.querySelectorAll('.producto-card');
-
   productos.forEach((producto, index) => {
     const productoId = producto.getAttribute('data-id');
     const inputCantidad = producto.querySelector(`#cantidad-${productoId}`);
@@ -1893,8 +1979,6 @@ function cargarPresetEnFacturacion(presetIndex) {
     btnTextOriginal.innerText = 'Factura Rápida';
     boltIcon.className = 'fas fa-bolt';
   }, 1000);
-  
-
 }
 
 
@@ -1919,8 +2003,6 @@ function abrirFacturacionRapida(presetIndex) {
   facturacionRapidaTab.click();
 }
 
-
-
 const tabs = document.querySelectorAll('.facturacion-rapida-tab');
 const observer = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
@@ -1940,6 +2022,74 @@ const menuContainer = document.getElementById('menu-container');
 toggleFactura.addEventListener('click', function() {
   menuContainer.classList.toggle('show');
 });
+
+function actualizarTextoPersonalizar() {
+  const botonesFacturaRapida = document.querySelectorAll('#minitablero-presets button');
+  const textoPersonalizar = document.getElementById('textoPersonalizar');
+
+  if (textoPersonalizar) {
+    if (botonesFacturaRapida.length === 0) {
+      textoPersonalizar.style.display = 'block';
+    } else {
+      textoPersonalizar.style.display = 'none';
+    }
+  }
+}
+function ConfirmacionRestablecerFacturaRapida() {
+  return new Promise((resolve) => {
+    const customConfirm = document.getElementById('custom-confirm');
+    const cancelButton = document.getElementById('custom-confirm-cancel');
+    const okButton = document.getElementById('custom-confirm-ok');
+
+    customConfirm.style.display = 'block';
+
+    cancelButton.addEventListener('click', () => {
+      customConfirm.style.display = 'none';
+      resolve(false);
+    });
+
+    okButton.addEventListener('click', () => {
+      customConfirm.style.display = 'none';
+      resolve(true);
+    });
+  });
+}
+
+
+function leerArchivo(archivo) {
+  const reader = new FileReader();
+
+  reader.onload = function (e) {
+    const dataImport = JSON.parse(e.target.result);
+    const productos = dataImport.productos;
+
+    const listaProductos = document.getElementById('listaProductos');
+    listaProductos.innerHTML = '';
+    let productosAgregados = 0;
+    productos.forEach(producto => {
+      document.getElementById('nombreProducto').value = producto.nombreProducto;
+      document.getElementById('precio').value = producto.precio;
+      document.getElementById('categoriaProducto').value = producto.categoria;
+      if (agregarProductoSinNotificacion()) {
+        productosAgregados++;
+      }
+    });
+
+    if (dataImport.facturacionRapida && dataImport.facturacionRapida.presets) {
+      presets = dataImport.facturacionRapida.presets;
+      guardarPresets();
+      crearBotonesFacturacionRapida();
+    }
+
+    if (productosAgregados === 1) {
+      showNotification('Producto importado correctamente');
+    } else if (productosAgregados > 1) {
+      showNotification('Varios productos agregados');
+    }
+  };
+  reader.readAsText(archivo);
+}
+
 
 
 

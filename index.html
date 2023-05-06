@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 
@@ -22,6 +21,8 @@
 </head>
 
 <body>
+
+
   <div class="spotlight"></div>
   <div id="popup" class="popup">
     <div class="slider-container">
@@ -43,7 +44,8 @@
         </div>
         <div class="slide">
           <h2>Guarda tus productos</h2>
-          <p>Activa la función de "Guardar al agregar" para guardar de manera automática los productos que vayas
+          <p>Activa la función de "Guardar al agregar productos" para guardar de manera automática los productos que
+            vayas
             agregando. Sino, puedes guardar los productos normalmente con el botón de "Guardar"</p>
           <p><strong>Nota:</strong> Puedes activarlo o desactivarlo en cualquier momento.</p>
         </div>
@@ -69,16 +71,17 @@
   </div>
 
   <header>
-    <div class="container-fluid bg-dark text-white py-3">
+    <div class="container-fluid text-white py-3 bg-maxi">
       <div class="container d-flex align-items-center">
         <img src="https://raw.githubusercontent.com/maxii1996/BaduCalculator-Online/main/icon-192x192.png"
           alt="BaduCalculator Logo" height="64" align="left">
         <h1 class="text-white mb-0 ml-3">BaduCalculator <sup class="text-secondary">online</sup></h1>
         <span id="version">Versión 1.10 NR | Developed by Undermax Software</span>
 
+        
 
 
-   
+
 
 
 
@@ -86,6 +89,8 @@
     </div>
 
   </header>
+
+  <div id="alert-container"></div>
 
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
 
@@ -96,7 +101,7 @@
       <label class="toggle" style="margin-left: 2rem;">
         <input class="toggle-checkbox" type="checkbox" id="autoguardarProductos" checked>
         <div class="toggle-switch"></div>
-        <span class="toggle-label">Guardar al agregar</span>
+        <span class="toggle-label">‎ Guardar al agregar productos ‎ ‎‎ </span>
       </label>
       <button id="modal-btn" class="btn btn-warning">
         <i class="fas fa-cog"></i> Opciones
@@ -105,10 +110,10 @@
         <i class="fas fa-history"></i> Ventas
       </a>
 
-      
 
-      
-      
+
+
+
 
 
       <div id="modal-container">
@@ -135,7 +140,7 @@
           <button id="borrar-datos" class="btn btn-outline-warning btn-sm">
             <i class="fas fa-trash"></i> Eliminar datos locales
           </button>
-          
+
 
           <div class="d-flex mt-3">
 
@@ -210,11 +215,12 @@
 
 
 
-         <br>
-      
-         <span><i class="fas fa-question"></i> Para utilizar el sistema de texto rápido, presiona las teclas ALT + 1, ALT + 2, o ALT + 3 respectivamente para copiar el texto personalizado en el portapapeles.</span>            <br>
+          <br>
 
-          
+          <span><i class="fas fa-question"></i> Para utilizar el sistema de texto rápido, presiona las teclas ALT + 1,
+            ALT + 2, o ALT + 3 respectivamente para copiar el texto personalizado en el portapapeles.</span> <br>
+
+
 
           <div class="custom-input-container">
             <label class="custom-input-label" for="quick-text-1-input">Texto Rápido 1:</label>
@@ -234,11 +240,11 @@
           <hr>
 
           <h4 style="text-align: left;">Configuración de Sonidos:</h4>
-          
-        
-      
+
+
+
           <span>Aquí realizarás ajustes sobre el Sonido de la aplicación.</span>
-      
+
           <br>
           <hr>
 
@@ -310,7 +316,7 @@
           Importar Productos
         </button>
 
-        
+
 
       </div>
     </div>
@@ -327,8 +333,8 @@
           <button id="toggleAgregarProducto" class="btn btn-outline-secondary btn-lg mx-2">
             <i class="fas fa-plus"></i> Agregar Producto
           </button>
-       
-          
+
+
 
 
           <div id="notificacionContenedor" class="mt-1" style="width: 95%;"></div>
@@ -386,7 +392,7 @@
 
                 </div>
 
-                
+
               </div>
 
 
@@ -415,11 +421,9 @@
                   <option value="">&#xF0B0; Filtrar por categoría</option>
                 </select>
               </div>
-              
-
-          
-
             </div>
+
+
 
             <button type="button" class="btn btn-outline-secondary btn-lg custom-btn" id="toggleFactura">
               <div class="text-container">
@@ -428,41 +432,48 @@
               </div>
             </button>
             <div id="menu-container">
-              <div id="minitablero-presets" class="d-grid gap-2"></div>
+              <div id="minitablero-presets" class="d-grid gap-2">
+                <span id="textoPersonalizar" style="display: none;">Personalizar</span>
+              </div>
             </div>
-            
-            
+
+
+
+
+
+
+
           </div>
 
 
-          
+
+          <div id="noResultsMessage" class="no-results">
+            <i id="sadFace" class="far fa-frown sad-face"></i>
+            <span class="no-results-text"></span>
+          </div>
+
+
+          <ul id="listaProductos" class="list-group"></ul>
+          <input type="file" id="archivoImportar" accept=".json" style="display: none;">
+          <div class="button-container">
+            <button id="facturar" class="btn btn-primary custom-button">
+              <i class="fas fa-file-invoice-dollar"></i> Facturar
+            </button>
+            <button id="siguienteCliente" class="btn btn-secondary w-50 custom-button" disabled>
+              <i class="fas fa-user-plus"></i> Siguiente Cliente
+            </button>
+
+
+
+            <div id="listaProductos" class="mt-2"></div>
+          </div>
+
+
+
 
         </div>
-
-
-
-
-        <ul id="listaProductos" class="list-group"></ul>
-        <input type="file" id="archivoImportar" accept=".json" style="display: none;">
-        <div class="button-container">
-          <button id="facturar" class="btn btn-primary custom-button">
-            <i class="fas fa-file-invoice-dollar"></i> Facturar
-          </button>
-          <button id="siguienteCliente" class="btn btn-secondary w-50 custom-button" disabled>
-            <i class="fas fa-user-plus"></i> Siguiente Cliente
-          </button>
-
-          
-
-          <div id="listaProductos" class="mt-2"></div>
-        </div>
-
-        
-
-        
       </div>
-    </div>
-    <br>
+      <br>
     </div>
 
   </center>
@@ -550,6 +561,34 @@
     </div>
   </div>
 
+
+
+  <div class="modal fade" id="ConfirmaGuardar" tabindex="-1" role="dialog" aria-labelledby="ConfirmaGuardarLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="ConfirmaGuardarLabel">Confirmar guardar productos</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          Se guardarán y reemplazarán los productos agregados previamente. ¿Estás de acuerdo?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="confirmarGuardar">Guardar Productos</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
   <div class="modal fade" id="historialVentasModal" tabindex="-1" role="dialog"
     aria-labelledby="historialVentasModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document" style="max-width: 80%;">
@@ -616,6 +655,53 @@
     </div>
   </div>
 
+
+  <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel"
+    aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="errorModalLabel">Información</h5>
+        </div>
+        <div class="modal-body">
+          Primero agrega productos para utilizar esta función.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">De acuerdo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="modal fade" id="confirmacionRestablecerFacturaRapida" tabindex="-1" role="dialog"
+    aria-labelledby="confirmacionRestablecerFacturaRapidaLabel" aria-hidden="true" data-backdrop="static"
+    data-keyboard="false">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmacionRestablecerFacturaRapidaLabel">Restablecer página</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          ¿Estás seguro de que deseas restablecer los valores de esta página?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="confirmarRestablecer">Aceptar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
   <div class="modal" tabindex="-1" role="dialog" id="confirmDeleteSingleModal" data-backdrop="static"
     data-keyboard="false">
     <div class="modal-dialog" role="document">
@@ -627,7 +713,9 @@
           </button>
         </div>
         <div class="modal-body">
-          <p>¿Estás seguro de que deseas eliminar este producto? Se guardarán los cambios automáticamente.</p>
+
+          <h6>¿Estás seguro de que deseas eliminar este producto?</h6> <strong>Se guardarán los cambios
+            automáticamente.</strong>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-danger" id="confirmDeleteSingle">Eliminar</button>
@@ -657,6 +745,11 @@
     </div>
   </div>
 
+
+
+
+
+
   <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" role="dialog"
     aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -675,39 +768,41 @@
     </div>
   </div>
 
- 
 
-<div class="modal fade" id="borrar-datos-modal" tabindex="-1" role="dialog" aria-labelledby="borrar-datos-modal-label" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="borrar-datos-modal-label">Confirmación de borrado de datos</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p>¿Estás seguro que quieres borrar todos los datos almacenados y restablecer los ajustes por defecto?</p>
-        <br>
-        <p><strong>Esta acción es irreversible, deberás volver a cargar la información.</strong></p>
-        <br>
-        <p>Realizar esta acción solo si el sistema no está funcionando adecuadamente.</p>
-        <hr>
-        
-        <p><strong>Mantén el boton de "Borrar datos" para confirmar.</strong></p>
-      </div>
-      
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-        <button id="confirmar-borrado" type="button" class="btn btn-danger">Borrar datos</button>
+
+  <div class="modal fade" id="borrar-datos-modal" tabindex="-1" role="dialog" aria-labelledby="borrar-datos-modal-label"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="borrar-datos-modal-label">Confirmación de borrado de datos</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>¿Estás seguro que quieres borrar todos los datos almacenados y restablecer los ajustes por defecto?</p>
+          <br>
+          <p><strong>Esta acción es irreversible, deberás volver a cargar la información.</strong></p>
+          <br>
+          <p>Realizar esta acción solo si el sistema no está funcionando adecuadamente.</p>
+          <hr>
+
+          <p><strong>Mantén el boton de "Borrar datos" para confirmar.</strong></p>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+          <button id="confirmar-borrado" type="button" class="btn btn-danger">Borrar datos</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
 
 
-  <div id="facturacion-rapida-modal" class="modal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+  <div id="facturacion-rapida-modal" class="modal" tabindex="-1" role="dialog" data-backdrop="static"
+    data-keyboard="false">
     <div class="modal-dialog modal-fullscreen">
       <div class="modal-content">
         <div class="modal-header">
@@ -724,23 +819,27 @@
                 <div class="bg-light h-100 p-2 d-flex flex-column">
                   <br>
                   <center>
-                    <button type="button" class="btn btn-lg btn-outline-primary" data-dismiss="modal">Cerrar Menú</button>
+                    <button type="button" class="btn btn-lg btn-outline-primary" data-dismiss="modal">Cerrar
+                      Menú</button>
                     <br>
                     <hr>
-                 
+
                     <br>
                     <div class="fondo">
-                      <i class="fas fa-question"></i> <h5> Sabías que...</h5>
-                      <span class="explicacion">  Si tocas clic derecho en el botón de cargar factura rápida, editarás directamente esa página.</span>
+                      <i class="fas fa-question"></i>
+                      <h5> Sabías que...</h5>
+                      <span class="explicacion"> Si tocas clic derecho en el botón de cargar factura rápida, editarás
+                        directamente esa página.</span>
                       <br>
                       <br>
-                      
+
                     </div>
-                   
+
                     <h6>Elige que Factura Rápida editarás: </h6>
                     <br>
                   </center>
-                  <div class="nav flex-column nav-pills d-flex" id="facturacion-rapida-tab" role="tablist" style="overflow-y: auto !important; flex-grow: 1; max-height: auto; flex-direction: column; flex-wrap: nowrap;">
+                  <div class="nav flex-column nav-pills d-flex" id="facturacion-rapida-tab" role="tablist"
+                    style="overflow-y: auto !important; flex-grow: 1; max-height: auto; flex-direction: column; flex-wrap: nowrap;">
                     <!-- Los botones de las pestañas se agregarán aquí dinámicamente -->
                   </div>
                 </div>
@@ -758,11 +857,66 @@
       </div>
     </div>
   </div>
-  
 
 
 
 
+
+  </div>
+
+
+  <div id="alert-container"></div>
+
+  <script>
+    function checkScreenResolution() {
+      var screenWidth = window.screen.width * window.devicePixelRatio;
+      var screenHeight = window.screen.height * window.devicePixelRatio;
+
+
+
+      if (screenWidth >= 1650) {
+
+        $('#alert-container').css('top', '-100%');
+      } else {
+
+        var alertMsg = '<div class="alert alert-danger alert-dismissible fade show mb-0" role="alert"><h5 class="alert-title">Información</h5><p class="alert-message mb-0">El sitio web está optimizado para resoluciones de pantalla de 1920x1080 o mayor, usar resoluciones de pantalla menores puede implicar que las cosas no se vean como deberían.</p><button type="button" class="btn-close" aria-label="Close"><i class="fas fa-times"></i></button></div>';
+        $('#alert-container').html(alertMsg);
+        $('#alert-container').css('top', 0);
+      }
+    }
+
+    $(document).ready(function () {
+      checkScreenResolution();
+      $(window).resize(function () {
+        checkScreenResolution();
+      });
+
+
+      $('#alert-container').on('click', '.btn-close', function () {
+        $('#alert-container').css('top', '-100%');
+      });
+    });
+  </script>
+
+
+
+  <div class="modal fade" id="ConfirmaImportar" tabindex="-1" aria-labelledby="ConfirmaImportarLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="ConfirmaImportarLabel">Confirmar importación de productos</h5>
+        </div>
+        <div class="modal-body">
+          Se reemplazarán los productos existentes con los que estás por importar. ¿Continuar?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal"
+            id="cancelarImportacion">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="confirmarImportar">Aceptar</button>
+        </div>
+      </div>
+    </div>
   </div>
 
 
@@ -817,17 +971,10 @@
 
 
 
-
-
-
-
-
-
   </script>
   <script src="script.js"></script>
   <script src="intro.js"></script>
   </script>
-
 
 
 
