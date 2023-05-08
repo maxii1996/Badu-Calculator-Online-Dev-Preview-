@@ -8,8 +8,7 @@ const firebaseConfig = {
   measurementId: "G-S00VKESY1B"
 };
 
-const app = firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth(app);
+firebase.initializeApp(firebaseConfig);
 
 async function signInWithGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
